@@ -1,6 +1,7 @@
 services:
   frontend:
     image: node:20-alpine
+    container_name: fms-frontend
     working_dir: /app
     volumes:
       - ./frontend:/app
@@ -11,10 +12,15 @@ services:
       - backend
 
   backend:
-    image: php:8.5-cli
+    build:
+      context: .
+      dockerfile: .docker/backend/Dockerfile
+    image: fms-backend
+    container_name: fms-backend
     working_dir: /var/www/html
     volumes:
       - ./backend:/var/www/html
+    entrypoint: ["/usr/local/bin/entrypoint.sh"]
     ports:
       - "8080:8080"
     command: sh -c "php artisan serve --host=0.0.0.0 --port=8080"
@@ -29,10 +35,13 @@ services:
 
   postgres:
     image: postgres:16-alpine
+    container_name: fms-db
     environment:
       POSTGRES_USER: fms
       POSTGRES_PASSWORD: fms
       POSTGRES_DB: fms
+    ports:
+      - "5432:5432"
     volumes:
       - ./.db:/var/lib/postgresql/data
 
