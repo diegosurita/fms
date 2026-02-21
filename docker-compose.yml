@@ -7,6 +7,8 @@ services:
     ports:
       - "80:5173"
     command: sh -c "npm install && npm run dev -- --host=0.0.0.0"
+    depends_on:
+      - backend
 
   backend:
     image: php:8.5-cli
@@ -16,6 +18,14 @@ services:
     ports:
       - "8080:8080"
     command: sh -c "php artisan serve --host=0.0.0.0 --port=8080"
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents(\"http://127.0.0.1:8080/up\") === false ? 1 : 0);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:16-alpine
