@@ -13,26 +13,29 @@ test('it delegates to fund repository and returns listed funds', function () {
 
     $expectedFunds = [$fund];
 
-    $repository = new class($expectedFunds) implements FundRepository {
-        /**
-         * @param FundEntity[] $funds
-         */
-        public function __construct(private readonly array $funds)
-        {
-        }
-
-        /**
-         * @return FundEntity[]
-         */
-        public function list(): array
-        {
-            return $this->funds;
-        }
-    };
+    $repository = \Mockery::mock(FundRepository::class);
+    $repository->shouldReceive('list')
+        ->once()
+        ->with(null)
+        ->andReturn($expectedFunds);
 
     $useCase = new ListFundsUseCase($repository);
 
     $result = $useCase->execute();
 
     expect($result)->toBe($expectedFunds);
+});
+
+test('it delegates filter to fund repository', function () {
+    $repository = \Mockery::mock(FundRepository::class);
+    $repository->shouldReceive('list')
+        ->once()
+        ->with('target')
+        ->andReturn([]);
+
+    $useCase = new ListFundsUseCase($repository);
+
+    $result = $useCase->execute('target');
+
+    expect($result)->toBe([]);
 });
