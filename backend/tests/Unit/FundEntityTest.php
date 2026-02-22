@@ -10,14 +10,14 @@ test('it stores and returns all fund entity attributes through getters and sette
     $entity->setId(7);
     $entity->setName('Growth Fund');
     $entity->setStartYear(2018);
-    $entity->setManager(3);
+    $entity->setManagerId(3);
     $entity->setCreatedAt($createdAt);
     $entity->setUpdatedAt($updatedAt);
 
     expect($entity->getId())->toBe(7)
         ->and($entity->getName())->toBe('Growth Fund')
         ->and($entity->getStartYear())->toBe(2018)
-        ->and($entity->getManager())->toBe(3)
+        ->and($entity->getManagerId())->toBe(3)
         ->and($entity->getCreatedAt())->toBe($createdAt)
         ->and($entity->getUpdatedAt())->toBe($updatedAt);
 });

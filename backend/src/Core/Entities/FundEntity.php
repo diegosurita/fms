@@ -7,7 +7,7 @@ class FundEntity
 	private ?int $id = null;
 	private string $name;
 	private int $startYear;
-	private int $manager;
+	private int $managerId;
 	private ?\DateTimeInterface $createdAt = null;
 	private ?\DateTimeInterface $updatedAt = null;
 
@@ -41,14 +41,14 @@ class FundEntity
 		$this->startYear = $startYear;
 	}
 
-	public function getManager(): int
+	public function getManagerId(): int
 	{
-		return $this->manager;
+		return $this->managerId;
 	}
 
-	public function setManager(int $manager): void
+	public function setManagerId(int $managerId): void
 	{
-		$this->manager = $manager;
+		$this->managerId = $managerId;
 	}
 
 	public function getCreatedAt(): ?\DateTimeInterface

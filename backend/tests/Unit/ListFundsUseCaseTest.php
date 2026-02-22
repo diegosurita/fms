@@ -9,7 +9,7 @@ test('it delegates to fund repository and returns listed funds', function () {
     $fund->setId(1);
     $fund->setName('Fund 1');
     $fund->setStartYear(2021);
-    $fund->setManager(10);
+    $fund->setManagerId(10);
 
     $expectedFunds = [$fund];
 

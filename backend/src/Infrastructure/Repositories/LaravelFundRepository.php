@@ -11,14 +11,14 @@ class LaravelFundRepository implements FundRepository
     public function list(?string $filter = null): array
     {
         $query = DB::table('funds')
-            ->join('fund_managers', 'fund_managers.id', '=', 'funds.manager')
+            ->join('fund_managers', 'fund_managers.id', '=', 'funds.manager_id')
             ->leftJoin('companies_funds', 'companies_funds.fund', '=', 'funds.id')
             ->leftJoin('companies', 'companies.id', '=', 'companies_funds.company')
             ->select([
                 'funds.id',
                 'funds.name',
                 'funds.start_year',
-                'funds.manager',
+                'funds.manager_id',
                 'funds.created_at',
                 'funds.updated_at',
             ])

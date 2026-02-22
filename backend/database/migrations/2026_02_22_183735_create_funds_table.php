@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('start_year');
-            $table->foreignId('manager')->constrained('fund_managers');
+            $table->foreignId('manager_id')->constrained('fund_managers');
             $table->timestamps();
         });
     }

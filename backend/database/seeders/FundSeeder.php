@@ -26,7 +26,7 @@ class FundSeeder extends Seeder
             $funds[] = [
                 'name' => "Fund {$index}",
                 'start_year' => (int) now()->subYears($index)->format('Y'),
-                'manager' => $managerId,
+                'manager_id' => $managerId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

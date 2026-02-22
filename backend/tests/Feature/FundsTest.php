@@ -18,7 +18,7 @@ test('it returns the registered list of funds from endpoint', function () {
     $firstFundId = DB::table('funds')->insertGetId([
         'name' => 'Alpha Fund',
         'start_year' => 2020,
-        'manager' => $managerId,
+        'manager_id' => $managerId,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -26,7 +26,7 @@ test('it returns the registered list of funds from endpoint', function () {
     $secondFundId = DB::table('funds')->insertGetId([
         'name' => 'Beta Fund',
         'start_year' => 2019,
-        'manager' => $managerId,
+        'manager_id' => $managerId,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -51,13 +51,13 @@ test('it returns the registered list of funds from endpoint', function () {
         'id' => $firstFundId,
         'name' => 'Alpha Fund',
         'startYear' => 2020,
-        'manager' => $managerId,
+        'managerId' => $managerId,
     ]);
     $response->assertJsonFragment([
         'id' => $secondFundId,
         'name' => 'Beta Fund',
         'startYear' => 2019,
-        'manager' => $managerId,
+        'managerId' => $managerId,
     ]);
 });
 
@@ -83,7 +83,7 @@ test('it filters funds by company name from endpoint', function () {
     $targetFundId = DB::table('funds')->insertGetId([
         'name' => 'Target Fund',
         'start_year' => 2020,
-        'manager' => $managerId,
+        'manager_id' => $managerId,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -91,7 +91,7 @@ test('it filters funds by company name from endpoint', function () {
     $otherFundId = DB::table('funds')->insertGetId([
         'name' => 'Other Fund',
         'start_year' => 2019,
-        'manager' => $managerId,
+        'manager_id' => $managerId,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -116,7 +116,7 @@ test('it filters funds by company name from endpoint', function () {
         'id' => $targetFundId,
         'name' => 'Target Fund',
         'startYear' => 2020,
-        'manager' => $managerId,
+        'managerId' => $managerId,
     ]);
     $response->assertJsonPath('data.0.id', $targetFundId);
     $response->assertJsonPath('data.0.name', 'Target Fund');
@@ -144,7 +144,7 @@ test('it does not duplicate funds when linked to multiple companies', function (
     $fundId = DB::table('funds')->insertGetId([
         'name' => 'Single Fund',
         'start_year' => 2021,
-        'manager' => $managerId,
+        'manager_id' => $managerId,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -169,6 +169,6 @@ test('it does not duplicate funds when linked to multiple companies', function (
         'id' => $fundId,
         'name' => 'Single Fund',
         'startYear' => 2021,
-        'manager' => $managerId,
+        'managerId' => $managerId,
     ]);
 });
