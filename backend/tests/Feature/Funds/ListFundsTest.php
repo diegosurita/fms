@@ -172,3 +172,59 @@ test('it does not duplicate funds when linked to multiple companies', function (
         'managerId' => $managerId,
     ]);
 });
+
+test('it does not return soft deleted funds from endpoint', function () {
+    $companyId = DB::table('companies')->insertGetId([
+        'name' => 'Company 1',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $managerId = DB::table('fund_managers')->insertGetId([
+        'name' => 'Manager 1',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $activeFundId = DB::table('funds')->insertGetId([
+        'name' => 'Active Fund',
+        'start_year' => 2022,
+        'manager_id' => $managerId,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $deletedFundId = DB::table('funds')->insertGetId([
+        'name' => 'Deleted Fund',
+        'start_year' => 2021,
+        'manager_id' => $managerId,
+        'created_at' => now(),
+        'updated_at' => now(),
+        'deleted_at' => now(),
+    ]);
+
+    DB::table('companies_funds')->insert([
+        [
+            'company' => $companyId,
+            'fund' => $activeFundId,
+        ],
+        [
+            'company' => $companyId,
+            'fund' => $deletedFundId,
+        ],
+    ]);
+
+    /** @var \Tests\TestCase $this */
+    $response = $this->get('/v1/funds');
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'data');
+    $response->assertJsonFragment([
+        'id' => $activeFundId,
+        'name' => 'Active Fund',
+        'startYear' => 2022,
+        'managerId' => $managerId,
+    ]);
+    $returnedIds = collect($response->json('data'))->pluck('id')->all();
+    expect($returnedIds)->not->toContain($deletedFundId);
+});

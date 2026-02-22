@@ -16,6 +16,7 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
             ->join('fund_managers', 'fund_managers.id', '=', 'funds.manager_id')
             ->leftJoin('companies_funds', 'companies_funds.fund', '=', 'funds.id')
             ->leftJoin('companies', 'companies.id', '=', 'companies_funds.company')
+            ->whereNull('funds.deleted_at')
             ->select([
                 'funds.id',
                 'funds.name',
@@ -109,6 +110,10 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
     {
         return DB::table('funds')
             ->where('id', $id)
-            ->delete() > 0;
+            ->whereNull('deleted_at')
+            ->update([
+                'deleted_at' => now(),
+                'updated_at' => now(),
+            ]) > 0;
     }
 }

@@ -22,7 +22,7 @@ test('it deletes a fund through endpoint', function () {
 
     $response->assertNoContent();
 
-    $this->assertDatabaseMissing('funds', [
+    $this->assertSoftDeleted('funds', [
         'id' => $fundId,
     ]);
 });

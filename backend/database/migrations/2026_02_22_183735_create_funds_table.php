@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('start_year');
             $table->foreignId('manager_id')->constrained('fund_managers');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
