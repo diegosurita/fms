@@ -104,4 +104,11 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
 
         return LaravelFundRepositoryAdapter::fromDB((array) $fund);
     }
+
+    public function delete(int $id): bool
+    {
+        return DB::table('funds')
+            ->where('id', $id)
+            ->delete() > 0;
+    }
 }

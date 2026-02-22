@@ -15,4 +15,6 @@ interface FundRepository
     public function create(SaveFundDTO $saveFundDTO): FundEntity;
 
     public function update(SaveFundDTO $saveFundDTO): FundEntity;
+
+    public function delete(int $id): bool;
 }

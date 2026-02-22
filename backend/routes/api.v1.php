@@ -7,4 +7,5 @@ Route::controller(FundController::class)->group(function () {
     Route::get('/funds', 'list');
     Route::post('/funds', 'create');
     Route::put('/funds/{id}', 'update');
+    Route::delete('/funds/{id}', 'delete');
 });

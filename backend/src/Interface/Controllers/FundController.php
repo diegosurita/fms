@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\UseCases\CreateFundUseCase;
 use FMS\Interface\Resources\FundListResource;
+use FMS\Core\UseCases\DeleteFundUseCase;
 use FMS\Core\UseCases\ListFundsUseCase;
 use FMS\Core\UseCases\UpdateFundUseCase;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -51,5 +53,12 @@ class FundController extends Controller
             (int) $validated['managerId'],
             $id,
         )));
+    }
+
+    public function delete(int $id, DeleteFundUseCase $deleteFundUseCase): Response
+    {
+        $deleteFundUseCase->execute($id);
+
+        return response()->noContent();
     }
 }
