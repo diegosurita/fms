@@ -6,7 +6,7 @@ use FMS\Core\Contracts\FundRepository;
 use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\Entities\FundEntity;
 
-class CreateFundUseCase
+class UpdateFundUseCase
 {
     public function __construct(private readonly FundRepository $fundRepository)
     {
@@ -14,11 +14,10 @@ class CreateFundUseCase
 
     public function execute(SaveFundDTO $saveFundDTO): FundEntity
     {
-        // TODO: add the logic to register companies and aliases when creating a fund
         try {
-            return $this->fundRepository->create($saveFundDTO);
+            return $this->fundRepository->update($saveFundDTO);
         } catch (\Throwable $exception) {
-            throw new \RuntimeException('Failed to create fund.', 0, $exception);
+            throw new \RuntimeException('Failed to update fund.', 0, $exception);
         }
     }
 }

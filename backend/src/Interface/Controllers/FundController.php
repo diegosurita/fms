@@ -3,10 +3,11 @@
 namespace FMS\Interface\Controllers;
 
 use App\Http\Controllers\Controller;
-use FMS\Core\DataTransferObjects\CreateFundDTO;
+use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\UseCases\CreateFundUseCase;
 use FMS\Interface\Resources\FundListResource;
 use FMS\Core\UseCases\ListFundsUseCase;
+use FMS\Core\UseCases\UpdateFundUseCase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,10 +30,26 @@ class FundController extends Controller
             'managerId' => ['required', 'integer'],
         ]);
 
-        return new FundListResource($createFundUseCase->execute(new CreateFundDTO(
+        return new FundListResource($createFundUseCase->execute(new SaveFundDTO(
             (string) $validated['name'],
             (int) $validated['startYear'],
             (int) $validated['managerId'],
+        )));
+    }
+
+    public function update(Request $request, int $id, UpdateFundUseCase $updateFundUseCase): JsonResource
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string'],
+            'startYear' => ['required', 'integer'],
+            'managerId' => ['required', 'integer'],
+        ]);
+
+        return new FundListResource($updateFundUseCase->execute(new SaveFundDTO(
+            (string) $validated['name'],
+            (int) $validated['startYear'],
+            (int) $validated['managerId'],
+            $id,
         )));
     }
 }

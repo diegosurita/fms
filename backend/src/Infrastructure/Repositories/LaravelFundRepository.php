@@ -3,7 +3,7 @@
 namespace FMS\Infrastructure\Repositories;
 
 use FMS\Core\Contracts\FundRepository;
-use FMS\Core\DataTransferObjects\CreateFundDTO;
+use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\Entities\FundEntity;
 use FMS\Infrastructure\Adapter\LaravelFundRepositoryAdapter;
 use Illuminate\Support\Facades\DB;
@@ -44,12 +44,12 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
 
     }
 
-    public function create(CreateFundDTO $createFundDTO): FundEntity
+    public function create(SaveFundDTO $saveFundDTO): FundEntity
     {
         $fundId = DB::table('funds')->insertGetId([
-            'name' => $createFundDTO->name,
-            'start_year' => $createFundDTO->startYear,
-            'manager_id' => $createFundDTO->managerId,
+            'name' => $saveFundDTO->name,
+            'start_year' => $saveFundDTO->startYear,
+            'manager_id' => $saveFundDTO->managerId,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -66,6 +66,41 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
             ])
             ->where('id', $fundId)
             ->first();
+
+        return LaravelFundRepositoryAdapter::fromDB((array) $fund);
+    }
+
+    public function update(SaveFundDTO $saveFundDTO): FundEntity
+    {
+        if ($saveFundDTO->id === null) {
+            throw new \InvalidArgumentException('Fund id is required to update fund.');
+        }
+
+        DB::table('funds')
+            ->where('id', $saveFundDTO->id)
+            ->update([
+                'name' => $saveFundDTO->name,
+                'start_year' => $saveFundDTO->startYear,
+                'manager_id' => $saveFundDTO->managerId,
+                'updated_at' => now(),
+            ]);
+
+        /** @var object|null $fund */
+        $fund = DB::table('funds')
+            ->select([
+                'id',
+                'name',
+                'start_year',
+                'manager_id',
+                'created_at',
+                'updated_at',
+            ])
+            ->where('id', $saveFundDTO->id)
+            ->first();
+
+        if ($fund === null) {
+            throw new \RuntimeException('Fund not found.'); // TODO: return null instead of throwing exception
+        }
 
         return LaravelFundRepositoryAdapter::fromDB((array) $fund);
     }

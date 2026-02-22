@@ -1,12 +1,12 @@
 <?php
 
 use FMS\Core\Contracts\FundRepository;
-use FMS\Core\DataTransferObjects\CreateFundDTO;
+use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\Entities\FundEntity;
 use FMS\Core\UseCases\CreateFundUseCase;
 
 test('it delegates to fund repository and returns created fund', function () {
-    $createFundDTO = new CreateFundDTO('Alpha Fund', 2022, 10);
+    $saveFundDTO = new SaveFundDTO('Alpha Fund', 2022, 10);
 
     $createdFund = new FundEntity();
     $createdFund->setId(1);
@@ -17,31 +17,31 @@ test('it delegates to fund repository and returns created fund', function () {
     $repository = \Mockery::mock(FundRepository::class);
     $repository->shouldReceive('create')
         ->once()
-        ->with($createFundDTO)
+        ->with($saveFundDTO)
         ->andReturn($createdFund);
 
     $useCase = new CreateFundUseCase($repository);
 
-    $result = $useCase->execute($createFundDTO);
+    $result = $useCase->execute($saveFundDTO);
 
     expect($result)->toBe($createdFund);
 });
 
 test('it wraps repository exception when creating fund', function () {
-    $createFundDTO = new CreateFundDTO('Alpha Fund', 2022, 10);
+    $saveFundDTO = new SaveFundDTO('Alpha Fund', 2022, 10);
 
     $previousException = new RuntimeException('database is unavailable');
 
     $repository = \Mockery::mock(FundRepository::class);
     $repository->shouldReceive('create')
         ->once()
-        ->with($createFundDTO)
+        ->with($saveFundDTO)
         ->andThrow($previousException);
 
     $useCase = new CreateFundUseCase($repository);
 
     try {
-        $useCase->execute($createFundDTO);
+        $useCase->execute($saveFundDTO);
         $this->fail('Expected RuntimeException was not thrown.');
     } catch (RuntimeException $exception) {
         expect($exception->getMessage())->toBe('Failed to create fund.')

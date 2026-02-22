@@ -2,7 +2,7 @@
 
 namespace FMS\Core\Contracts;
 
-use FMS\Core\DataTransferObjects\CreateFundDTO;
+use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\Entities\FundEntity;
 
 interface FundRepository
@@ -12,5 +12,7 @@ interface FundRepository
      */
     public function list(?string $filter = null): array;
 
-    public function create(CreateFundDTO $createFundDTO): FundEntity;
+    public function create(SaveFundDTO $saveFundDTO): FundEntity;
+
+    public function update(SaveFundDTO $saveFundDTO): FundEntity;
 }
