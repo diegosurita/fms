@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('funds', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->timestamp('start_year');
+            $table->integer('start_year');
             $table->foreignId('manager')->constrained('fund_managers');
             $table->timestamps();
         });
