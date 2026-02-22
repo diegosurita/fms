@@ -1,10 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use FMS\Interface\Controllers\FundController;
 
-Route::get('/health', function () {
-    return response()->json([
-        'status' => 'ok',
-        'version' => 'v1',
-    ]);
+Route::controller(FundController::class)->group(function () {
+    Route::get('/funds', 'list');
 });

@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use FMS\Core\Contracts\FundRepository;
+use FMS\Infrastructure\Repositories\LaravelFundRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(FundRepository::class, LaravelFundRepository::class);
     }
 
     /**
