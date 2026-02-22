@@ -9,5 +9,5 @@ interface FundRepository
     /**
      * @return FundEntity[]
      */
-    public function list(): array;
+    public function list(?string $filter = null): array;
 }

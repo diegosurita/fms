@@ -10,8 +10,8 @@ class ListFundsUseCase
     {
     }
 
-    public function execute(): array
+    public function execute(?string $filter = null): array
     {
-        return $this->fundRepository->list();
+        return $this->fundRepository->list($filter);
     }
 }

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             FundManagerSeeder::class,
             FundSeeder::class,
+            CompanyFundSeeder::class,
             FundAliasSeeder::class,
         ]);
     }
