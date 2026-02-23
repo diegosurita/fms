@@ -16,10 +16,6 @@ class GetDuplicatedFundsUseCase
      */
     public function execute(): array
     {
-        try {
-            return $this->fundRepository->getDuplicated();
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Failed to get duplicated funds.', 0, $exception);
-        }
+        return $this->fundRepository->getDuplicated();
     }
 }

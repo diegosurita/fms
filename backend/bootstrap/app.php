@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,5 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\RuntimeException|\InvalidArgumentException $exception) {
+            $statusCode = (int) $exception->getCode();
+
+            if ($statusCode === 0) {
+                $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+            }
+
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'code' => (int) $exception->getCode(),
+                'trace' => $exception->getTrace(),
+            ], $statusCode);
+        });
     })->create();

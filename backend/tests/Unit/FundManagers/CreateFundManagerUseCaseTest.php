@@ -25,7 +25,7 @@ test('it delegates to fund manager repository and returns created fund manager',
     expect($result)->toBe($createdFundManager);
 });
 
-test('it wraps repository exception when creating fund manager', function () {
+test('it propagates repository exception when creating fund manager', function () {
     $saveFundManagerDTO = new SaveFundManagerDTO('Alpha Manager');
 
     $previousException = new RuntimeException('database is unavailable');
@@ -42,8 +42,7 @@ test('it wraps repository exception when creating fund manager', function () {
         $useCase->execute($saveFundManagerDTO);
         $this->fail('Expected RuntimeException was not thrown.');
     } catch (RuntimeException $exception) {
-        expect($exception->getMessage())->toBe('Failed to create fund manager.')
-            ->and($exception->getCode())->toBe(0)
-            ->and($exception->getPrevious())->toBe($previousException);
+        expect($exception)->toBe($previousException)
+            ->and($exception->getMessage())->toBe('database is unavailable');
     }
 });

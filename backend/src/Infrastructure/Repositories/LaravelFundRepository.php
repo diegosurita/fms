@@ -198,7 +198,7 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
     public function update(SaveFundDTO $saveFundDTO): FundEntity
     {
         if ($saveFundDTO->id === null) {
-            throw new \InvalidArgumentException('Fund id is required to update fund.');
+            throw new \InvalidArgumentException('Fund id is required to update fund.', 400);
         }
 
         $aliases = $this->normalizeAliases($saveFundDTO->aliases);
@@ -265,7 +265,7 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
             ->first();
 
         if ($fund === null) {
-            throw new \RuntimeException('Fund not found.'); // TODO: return null instead of throwing exception
+            throw new \RuntimeException('Fund not found.', 404); // TODO: return null instead of throwing exception
         }
 
         $data = (array) $fund;
@@ -312,7 +312,7 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
         $existingAlias = $query->value('alias');
 
         if ($existingAlias !== null) {
-            throw new \InvalidArgumentException('Alias already exists.');
+            throw new \InvalidArgumentException('Alias already exists.', 409);
         }
     }
 

@@ -14,10 +14,6 @@ class UpdateFundManagerUseCase
 
     public function execute(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity
     {
-        try {
-            return $this->fundManagerRepository->update($saveFundManagerDTO);
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Failed to update fund manager.', 0, $exception);
-        }
+        return $this->fundManagerRepository->update($saveFundManagerDTO);
     }
 }

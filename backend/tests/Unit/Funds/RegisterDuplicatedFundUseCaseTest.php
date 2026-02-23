@@ -19,7 +19,7 @@ test('it delegates duplicated fund registration to repository', function () {
     expect(true)->toBeTrue();
 });
 
-test('it wraps repository exception when registering duplicated fund', function () {
+test('it propagates repository exception when registering duplicated fund', function () {
     $sourceFundId = 10;
     $duplicatedFundId = 20;
     $previousException = new RuntimeException('database is unavailable');
@@ -36,8 +36,7 @@ test('it wraps repository exception when registering duplicated fund', function 
         $useCase->execute($sourceFundId, $duplicatedFundId);
         $this->fail('Expected RuntimeException was not thrown.');
     } catch (RuntimeException $exception) {
-        expect($exception->getMessage())->toBe('Failed to register duplicated fund.')
-            ->and($exception->getCode())->toBe(0)
-            ->and($exception->getPrevious())->toBe($previousException);
+        expect($exception)->toBe($previousException)
+            ->and($exception->getMessage())->toBe('database is unavailable');
     }
 });

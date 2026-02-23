@@ -14,10 +14,6 @@ class UpdateCompanyUseCase
 
     public function execute(SaveCompanyDTO $saveCompanyDTO): CompanyEntity
     {
-        try {
-            return $this->companyRepository->update($saveCompanyDTO);
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Failed to update company.', 0, $exception);
-        }
+        return $this->companyRepository->update($saveCompanyDTO);
     }
 }

@@ -75,7 +75,7 @@ test('it wraps repository exception when creating fund', function () {
         $this->fail('Expected RuntimeException was not thrown.');
     } catch (RuntimeException $exception) {
         expect($exception->getMessage())->toBe('Failed to create fund.')
-            ->and($exception->getCode())->toBe(0)
+            ->and($exception->getCode())->toBe(400)
             ->and($exception->getPrevious())->toBe($previousException);
     }
 });
@@ -83,7 +83,7 @@ test('it wraps repository exception when creating fund', function () {
 test('it propagates invalid argument exception when creating fund', function () {
     $saveFundDTO = new SaveFundDTO('Alpha Fund', 2022, 10, aliases: ['Alpha Alias']);
 
-    $previousException = new InvalidArgumentException('Alias already exists.');
+    $previousException = new InvalidArgumentException('Alias already exists.', 409);
 
     $repository = \Mockery::mock(FundRepository::class);
     $repository->shouldReceive('startTransaction')
@@ -108,7 +108,8 @@ test('it propagates invalid argument exception when creating fund', function () 
         $useCase->execute($saveFundDTO);
         $this->fail('Expected InvalidArgumentException was not thrown.');
     } catch (InvalidArgumentException $exception) {
-        expect($exception->getMessage())->toBe('Alias already exists.');
+        expect($exception->getMessage())->toBe('Alias already exists.')
+            ->and($exception->getCode())->toBe(409);
     }
 });
 

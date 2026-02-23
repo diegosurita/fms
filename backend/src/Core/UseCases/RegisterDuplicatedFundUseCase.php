@@ -12,10 +12,6 @@ class RegisterDuplicatedFundUseCase
 
     public function execute(int $sourceFundId, int $duplicatedFundId): void
     {
-        try {
-            $this->fundRepository->registerDuplicatedFund($sourceFundId, $duplicatedFundId);
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Failed to register duplicated fund.', 0, $exception);
-        }
+        $this->fundRepository->registerDuplicatedFund($sourceFundId, $duplicatedFundId);
     }
 }

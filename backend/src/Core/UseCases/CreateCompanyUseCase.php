@@ -14,10 +14,6 @@ class CreateCompanyUseCase
 
     public function execute(SaveCompanyDTO $saveCompanyDTO): CompanyEntity
     {
-        try {
-            return $this->companyRepository->create($saveCompanyDTO);
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Failed to create company.', 0, $exception);
-        }
+        return $this->companyRepository->create($saveCompanyDTO);
     }
 }

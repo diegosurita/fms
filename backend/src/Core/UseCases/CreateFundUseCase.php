@@ -29,7 +29,7 @@ class CreateFundUseCase
                 $fundId = $fund->getId();
 
                 if ($fundId === null) {
-                    throw new \RuntimeException('Fund id is required to sync fund companies.');
+                    throw new \RuntimeException('Fund id is required to sync fund companies.', 400);
                 }
     
                 $this->companyRepository->syncFundCompanies(
@@ -50,7 +50,7 @@ class CreateFundUseCase
         } catch (\Throwable $exception) {
             $this->fundRepository->rollbackTransaction();
 
-            throw new \RuntimeException('Failed to create fund.', 0, $exception);
+            throw new \RuntimeException('Failed to create fund.', 400, $exception);
         }
     }
 

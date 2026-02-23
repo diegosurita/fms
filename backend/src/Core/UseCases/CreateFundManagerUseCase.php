@@ -14,10 +14,6 @@ class CreateFundManagerUseCase
 
     public function execute(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity
     {
-        try {
-            return $this->fundManagerRepository->create($saveFundManagerDTO);
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Failed to create fund manager.', 0, $exception);
-        }
+        return $this->fundManagerRepository->create($saveFundManagerDTO);
     }
 }

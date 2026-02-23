@@ -117,5 +117,6 @@ test('it throws an exception when creating a fund with an existing alias', funct
         'aliases' => ['Existing Alias'],
     ]);
 
-    $response->assertStatus(500);
+    $response->assertStatus(409);
+    $response->assertJsonPath('message', 'Alias already exists.');
 });

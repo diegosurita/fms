@@ -56,7 +56,7 @@ class LaravelCompanyRepository extends LaravelRepository implements CompanyRepos
     public function update(SaveCompanyDTO $saveCompanyDTO): CompanyEntity
     {
         if ($saveCompanyDTO->id === null) {
-            throw new \InvalidArgumentException('Company id is required to update company.');
+            throw new \InvalidArgumentException('Company id is required to update company.', 400);
         }
 
         DB::table('companies')
@@ -78,7 +78,7 @@ class LaravelCompanyRepository extends LaravelRepository implements CompanyRepos
             ->first();
 
         if ($company === null) {
-            throw new \RuntimeException('Company not found.');
+            throw new \RuntimeException('Company not found.', 404);
         }
 
         return LaravelCompanyEntityAdapter::fromDB((array) $company);

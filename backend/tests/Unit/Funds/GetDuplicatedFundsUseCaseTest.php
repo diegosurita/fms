@@ -34,7 +34,7 @@ test('it delegates to fund repository and returns duplicated funds', function ()
     expect($result)->toBe($expected);
 });
 
-test('it wraps repository exceptions when listing duplicated funds', function () {
+test('it propagates repository exceptions when listing duplicated funds', function () {
     $repository = \Mockery::mock(FundRepository::class);
     $repository->shouldReceive('getDuplicated')
         ->once()
@@ -46,10 +46,8 @@ test('it wraps repository exceptions when listing duplicated funds', function ()
     try {
         $useCase->execute();
 
-        $this->fail('RuntimeException was not thrown.');
-    } catch (\RuntimeException $exception) {
-        expect($exception->getMessage())->toBe('Failed to get duplicated funds.');
-        expect($exception->getPrevious())->toBeInstanceOf(\Exception::class);
-        expect($exception->getPrevious()?->getMessage())->toBe('db error');
+        $this->fail('Exception was not thrown.');
+    } catch (\Exception $exception) {
+        expect($exception->getMessage())->toBe('db error');
     }
 });

@@ -25,7 +25,7 @@ test('it delegates to company repository and returns updated company', function 
     expect($result)->toBe($updatedCompany);
 });
 
-test('it wraps repository exception when updating company', function () {
+test('it propagates repository exception when updating company', function () {
     $saveCompanyDTO = new SaveCompanyDTO('Updated Company', 1);
 
     $previousException = new RuntimeException('database is unavailable');
@@ -42,8 +42,7 @@ test('it wraps repository exception when updating company', function () {
         $useCase->execute($saveCompanyDTO);
         $this->fail('Expected RuntimeException was not thrown.');
     } catch (RuntimeException $exception) {
-        expect($exception->getMessage())->toBe('Failed to update company.')
-            ->and($exception->getCode())->toBe(0)
-            ->and($exception->getPrevious())->toBe($previousException);
+        expect($exception)->toBe($previousException)
+            ->and($exception->getMessage())->toBe('database is unavailable');
     }
 });

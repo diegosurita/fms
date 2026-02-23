@@ -25,7 +25,7 @@ test('it delegates to company repository and returns created company', function 
     expect($result)->toBe($createdCompany);
 });
 
-test('it wraps repository exception when creating company', function () {
+test('it propagates repository exception when creating company', function () {
     $saveCompanyDTO = new SaveCompanyDTO('Alpha Company');
 
     $previousException = new RuntimeException('database is unavailable');
@@ -42,8 +42,7 @@ test('it wraps repository exception when creating company', function () {
         $useCase->execute($saveCompanyDTO);
         $this->fail('Expected RuntimeException was not thrown.');
     } catch (RuntimeException $exception) {
-        expect($exception->getMessage())->toBe('Failed to create company.')
-            ->and($exception->getCode())->toBe(0)
-            ->and($exception->getPrevious())->toBe($previousException);
+        expect($exception)->toBe($previousException)
+            ->and($exception->getMessage())->toBe('database is unavailable');
     }
 });

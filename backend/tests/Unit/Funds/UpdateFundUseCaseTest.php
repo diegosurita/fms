@@ -27,7 +27,7 @@ test('it delegates to fund repository and returns updated fund', function () {
     expect($result)->toBe($updatedFund);
 });
 
-test('it wraps repository exception when updating fund', function () {
+test('it propagates repository exception when updating fund', function () {
     $saveFundDTO = new SaveFundDTO('Updated Fund', 2024, 20, 1);
 
     $previousException = new RuntimeException('database is unavailable');
@@ -44,8 +44,7 @@ test('it wraps repository exception when updating fund', function () {
         $useCase->execute($saveFundDTO);
         $this->fail('Expected RuntimeException was not thrown.');
     } catch (RuntimeException $exception) {
-        expect($exception->getMessage())->toBe('Failed to update fund.')
-            ->and($exception->getCode())->toBe(0)
-            ->and($exception->getPrevious())->toBe($previousException);
+        expect($exception)->toBe($previousException)
+            ->and($exception->getMessage())->toBe('database is unavailable');
     }
 });
