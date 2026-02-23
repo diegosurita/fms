@@ -6,7 +6,7 @@ use FMS\Core\DataTransferObjects\DuplicatedFundsDTO;
 use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\Entities\FundEntity;
 
-interface FundRepository
+interface FundRepository extends RepositoryTransactionInterface
 {
     /**
      * @return FundEntity[]

@@ -74,29 +74,22 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
     public function create(SaveFundDTO $saveFundDTO): FundEntity
     {
         $aliases = $this->normalizeAliases($saveFundDTO->aliases);
-        $companies = $this->normalizeCompanies($saveFundDTO->companies);
 
         $this->ensureAliasesDoNotExist($aliases);
 
-        $fundId = DB::transaction(function () use ($saveFundDTO, $aliases, $companies): int {
-            $fundId = $this->insertFund($saveFundDTO);
+        $fundId = $this->insertFund($saveFundDTO);
 
-            if ($aliases !== []) {
-                DB::table('fund_aliases')->insert(array_map(
-                    static fn (string $alias): array => [
-                        'alias' => $alias,
-                        'fund' => $fundId,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ],
-                    $aliases,
-                ));
-            }
-
-            $this->companyRepository->syncFundCompanies($fundId, $companies);
-
-            return $fundId;
-        });
+        if ($aliases !== []) {
+            DB::table('fund_aliases')->insert(array_map(
+                static fn (string $alias): array => [
+                    'alias' => $alias,
+                    'fund' => $fundId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                $aliases,
+            ));
+        }
 
         return $this->findFundOrFail($fundId);
     }
