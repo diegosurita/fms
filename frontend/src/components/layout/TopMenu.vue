@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type MenuPage = '/funds' | '/funds/duplicated' | '/companies' | '/fund-managers'
+type MenuPage = '/funds' | '/companies' | '/fund-managers'
 
 defineProps<{
   selected: MenuPage
@@ -11,7 +11,6 @@ const emit = defineEmits<{
 
 const menuItems: Array<{ label: string; page: MenuPage }> = [
   { label: 'Funds', page: '/funds' },
-  { label: 'Duplicated Funds', page: '/funds/duplicated' },
   { label: 'Companies', page: '/companies' },
   { label: 'Fund Managers', page: '/fund-managers' },
 ]

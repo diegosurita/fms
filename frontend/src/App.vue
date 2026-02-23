@@ -2,11 +2,10 @@
 import { computed, ref } from 'vue'
 import TopMenu from '@/components/layout/TopMenu.vue'
 import CompaniesPage from '@/pages/CompaniesPage.vue'
-import DuplicatedFundsPage from '@/pages/DuplicatedFundsPage.vue'
 import FundManagersPage from '@/pages/FundManagersPage.vue'
 import FundsPage from '@/pages/FundsPage.vue'
 
-type MenuPage = '/funds' | '/funds/duplicated' | '/companies' | '/fund-managers'
+type MenuPage = '/funds' | '/companies' | '/fund-managers'
 
 const currentPage = ref<MenuPage>('/funds')
 
@@ -17,10 +16,6 @@ const currentView = computed(() => {
 
   if (currentPage.value === '/fund-managers') {
     return FundManagersPage
-  }
-
-  if (currentPage.value === '/funds/duplicated') {
-    return DuplicatedFundsPage
   }
 
   return FundsPage

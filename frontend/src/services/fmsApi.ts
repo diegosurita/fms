@@ -2,6 +2,7 @@ import type {
   Company,
   CompanyPayload,
   DuplicatedFund,
+  DuplicatedFundRecord,
   Fund,
   FundManager,
   FundManagerPayload,
@@ -68,6 +69,49 @@ function toArray<T>(payload: unknown): T[] {
   return []
 }
 
+function normalizeDuplicatedFundRecord(payload: unknown): DuplicatedFundRecord | null {
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const data = payload as Record<string, unknown>
+  const id = Number(data.id)
+
+  if (!Number.isFinite(id)) {
+    return null
+  }
+
+  return {
+    id,
+    name: String(data.name ?? ''),
+    startYear: Number(data.startYear ?? data.start_year ?? new Date().getFullYear()),
+    managerId: Number(data.managerId ?? data.manager_id ?? 0),
+    managerName: data.managerName === null || data.managerName === undefined ? null : String(data.managerName),
+    aliases: Array.isArray(data.aliases) ? data.aliases.map((alias) => String(alias)) : [],
+    createdAt: data.createdAt === null || data.createdAt === undefined ? null : String(data.createdAt),
+    updatedAt: data.updatedAt === null || data.updatedAt === undefined ? null : String(data.updatedAt),
+  }
+}
+
+function normalizeDuplicatedFund(payload: unknown): DuplicatedFund | null {
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const data = payload as Record<string, unknown>
+  const source = normalizeDuplicatedFundRecord(data.source)
+  const duplicated = normalizeDuplicatedFundRecord(data.duplicated)
+
+  if (!source || !duplicated) {
+    return null
+  }
+
+  return {
+    source,
+    duplicated,
+  }
+}
+
 export const fmsApi = {
   async listFunds(): Promise<Fund[]> {
     const response = await request<unknown>('/funds')
@@ -76,7 +120,9 @@ export const fmsApi = {
 
   async listDuplicatedFunds(): Promise<DuplicatedFund[]> {
     const response = await request<unknown>('/funds/duplicated')
-    return toArray<DuplicatedFund>(response)
+    return toArray<unknown>(response)
+      .map((item) => normalizeDuplicatedFund(item))
+      .filter((item): item is DuplicatedFund => item !== null)
   },
 
   async createFund(payload: FundPayload): Promise<void> {

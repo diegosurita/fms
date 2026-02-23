@@ -6,6 +6,7 @@ use FMS\Core\DataTransferObjects\DuplicatedFundsDTO;
 use FMS\Core\Entities\FundEntity;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 
 class DuplicatedFundsResource extends JsonResource
 {
@@ -30,11 +31,30 @@ class DuplicatedFundsResource extends JsonResource
      */
     private function mapFund(FundEntity $fund): array
     {
+        $fundId = $fund->getId();
+        $managerId = $fund->getManagerId();
+
+        $aliases = [];
+
+        if ($fundId !== null) {
+            $aliases = DB::table('fund_aliases')
+                ->where('fund', $fundId)
+                ->pluck('alias')
+                ->map(static fn (mixed $alias): string => (string) $alias)
+                ->all();
+        }
+
+        $managerName = DB::table('fund_managers')
+            ->where('id', $managerId)
+            ->value('name');
+
         return [
-            'id' => $fund->getId(),
+            'id' => $fundId,
             'name' => $fund->getName(),
             'startYear' => $fund->getStartYear(),
-            'managerId' => $fund->getManagerId(),
+            'managerId' => $managerId,
+            'managerName' => $managerName !== null ? (string) $managerName : null,
+            'aliases' => $aliases,
             'createdAt' => $fund->getCreatedAt()?->format(DATE_ATOM),
             'updatedAt' => $fund->getUpdatedAt()?->format(DATE_ATOM),
         ];
