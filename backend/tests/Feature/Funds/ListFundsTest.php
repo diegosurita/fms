@@ -50,14 +50,14 @@ test('it returns the registered list of funds from endpoint', function () {
     $response->assertJsonFragment([
         'id' => $firstFundId,
         'name' => 'Alpha Fund',
-        'startYear' => 2020,
-        'managerId' => $managerId,
+        'start_year' => 2020,
+        'manager_id' => $managerId,
     ]);
     $response->assertJsonFragment([
         'id' => $secondFundId,
         'name' => 'Beta Fund',
-        'startYear' => 2019,
-        'managerId' => $managerId,
+        'start_year' => 2019,
+        'manager_id' => $managerId,
     ]);
 });
 
@@ -115,8 +115,8 @@ test('it filters funds by company name from endpoint', function () {
     $response->assertJsonFragment([
         'id' => $targetFundId,
         'name' => 'Target Fund',
-        'startYear' => 2020,
-        'managerId' => $managerId,
+        'start_year' => 2020,
+        'manager_id' => $managerId,
     ]);
     $response->assertJsonPath('data.0.id', $targetFundId);
     $response->assertJsonPath('data.0.name', 'Target Fund');
@@ -168,8 +168,8 @@ test('it does not duplicate funds when linked to multiple companies', function (
     $response->assertJsonFragment([
         'id' => $fundId,
         'name' => 'Single Fund',
-        'startYear' => 2021,
-        'managerId' => $managerId,
+        'start_year' => 2021,
+        'manager_id' => $managerId,
     ]);
 });
 
@@ -222,9 +222,47 @@ test('it does not return soft deleted funds from endpoint', function () {
     $response->assertJsonFragment([
         'id' => $activeFundId,
         'name' => 'Active Fund',
-        'startYear' => 2022,
-        'managerId' => $managerId,
+        'start_year' => 2022,
+        'manager_id' => $managerId,
     ]);
     $returnedIds = collect($response->json('data'))->pluck('id')->all();
     expect($returnedIds)->not->toContain($deletedFundId);
+});
+
+test('it returns fund aliases from endpoint', function () {
+    $managerId = DB::table('fund_managers')->insertGetId([
+        'name' => 'Manager 1',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $fundId = DB::table('funds')->insertGetId([
+        'name' => 'Alpha Fund',
+        'start_year' => 2020,
+        'manager_id' => $managerId,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    DB::table('fund_aliases')->insert([
+        [
+            'alias' => 'Alpha Alias 1',
+            'fund' => $fundId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'alias' => 'Alpha Alias 2',
+            'fund' => $fundId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    ]);
+
+    /** @var \Tests\TestCase $this */
+    $response = $this->get('/v1/funds');
+
+    $response->assertOk();
+    $response->assertJsonPath('data.0.id', $fundId);
+    $response->assertJsonPath('data.0.aliases', ['Alpha Alias 1', 'Alpha Alias 2']);
 });

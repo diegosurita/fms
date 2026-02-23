@@ -37,12 +37,12 @@ test('it returns duplicated funds list from endpoint', function () {
     $response->assertJsonCount(1, 'data');
     $response->assertJsonPath('data.0.source.id', $sourceFundId);
     $response->assertJsonPath('data.0.source.name', 'Alpha Fund');
-    $response->assertJsonPath('data.0.source.startYear', 2020);
-    $response->assertJsonPath('data.0.source.managerId', $managerId);
+    $response->assertJsonPath('data.0.source.start_year', 2020);
+    $response->assertJsonPath('data.0.source.manager_id', $managerId);
     $response->assertJsonPath('data.0.duplicated.id', $duplicatedFundId);
     $response->assertJsonPath('data.0.duplicated.name', 'Alpha Fund II');
-    $response->assertJsonPath('data.0.duplicated.startYear', 2021);
-    $response->assertJsonPath('data.0.duplicated.managerId', $managerId);
+    $response->assertJsonPath('data.0.duplicated.start_year', 2021);
+    $response->assertJsonPath('data.0.duplicated.manager_id', $managerId);
 });
 
 test('it does not return duplicated funds when one fund is soft deleted', function () {

@@ -11,6 +11,7 @@ test('it stores and returns all fund entity attributes through getters and sette
     $entity->setName('Growth Fund');
     $entity->setStartYear(2018);
     $entity->setManagerId(3);
+    $entity->setAliases(['Growth I', 'Growth II']);
     $entity->setCreatedAt($createdAt);
     $entity->setUpdatedAt($updatedAt);
 
@@ -18,6 +19,7 @@ test('it stores and returns all fund entity attributes through getters and sette
         ->and($entity->getName())->toBe('Growth Fund')
         ->and($entity->getStartYear())->toBe(2018)
         ->and($entity->getManagerId())->toBe(3)
+        ->and($entity->getAliases())->toBe(['Growth I', 'Growth II'])
         ->and($entity->getCreatedAt())->toBe($createdAt)
         ->and($entity->getUpdatedAt())->toBe($updatedAt);
 });

@@ -23,6 +23,7 @@ const formModel = ref<FundPayload>({
   name: '',
   start_year: new Date().getFullYear(),
   manager_id: 1,
+  aliases: [],
 })
 
 const duplicatedPairByFundId = computed<Map<number, DuplicatedFund>>(() => {
@@ -54,6 +55,21 @@ function getFundManagerId(fund: Fund): number {
 
 function getFundManagerName(fund: Fund): string {
   return managersById.value[getFundManagerId(fund)] ?? '-'
+}
+
+function getFundAliases(fund: Fund): string[] {
+  return Array.isArray(fund.aliases) ? fund.aliases.map((alias) => String(alias).trim()).filter(Boolean) : []
+}
+
+function getFundAliasesPreview(fund: Fund): string {
+  const aliases = getFundAliases(fund)
+
+  if (aliases.length === 0) {
+    return '-'
+  }
+
+  const preview = aliases.slice(0, 3).join(', ')
+  return aliases.length > 3 ? `${preview}, ...` : preview
 }
 
 function getManagerNameById(managerId: number): string {
@@ -98,6 +114,7 @@ function resetForm(): void {
     name: '',
     start_year: new Date().getFullYear(),
     manager_id: 1,
+    aliases: [],
   }
 }
 
@@ -123,6 +140,9 @@ function editFund(item: Record<string, unknown>): void {
     name: String(item.name ?? ''),
     start_year: Number(item.start_year ?? item.startYear ?? new Date().getFullYear()),
     manager_id: Number(item.manager_id ?? item.managerId ?? 1),
+    aliases: Array.isArray(item.aliases)
+      ? item.aliases.map((alias) => String(alias).trim()).filter((alias) => alias.length > 0)
+      : [],
   }
   isFormDrawerOpen.value = true
 }
@@ -249,6 +269,7 @@ onMounted(loadFunds)
                 Start Year
               </th>
               <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Manager</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Aliases</th>
               <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Actions</th>
             </tr>
           </thead>
@@ -271,6 +292,7 @@ onMounted(loadFunds)
               </td>
               <td class="px-4 py-3 text-sm text-slate-700">{{ getFundStartYear(fund) }}</td>
               <td class="px-4 py-3 text-sm text-slate-700">{{ getFundManagerName(fund) }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">{{ getFundAliasesPreview(fund) }}</td>
               <td class="px-4 py-3 text-sm text-slate-700">
                 <div class="flex gap-2">
                   <button

@@ -62,3 +62,27 @@ test('it wraps repository exception when creating fund', function () {
             ->and($exception->getPrevious())->toBe($previousException);
     }
 });
+
+test('it propagates invalid argument exception when creating fund', function () {
+    $saveFundDTO = new SaveFundDTO('Alpha Fund', 2022, 10, aliases: ['Alpha Alias']);
+
+    $previousException = new InvalidArgumentException('Alias already exists.');
+
+    $repository = \Mockery::mock(FundRepository::class);
+    $repository->shouldReceive('create')
+        ->once()
+        ->with($saveFundDTO)
+        ->andThrow($previousException);
+
+    $eventDispatcher = \Mockery::mock(EventDispatcherInterface::class);
+    $eventDispatcher->shouldNotReceive('dispatch');
+
+    $useCase = new CreateFundUseCase($repository, $eventDispatcher);
+
+    try {
+        $useCase->execute($saveFundDTO);
+        $this->fail('Expected InvalidArgumentException was not thrown.');
+    } catch (InvalidArgumentException $exception) {
+        expect($exception->getMessage())->toBe('Alias already exists.');
+    }
+});

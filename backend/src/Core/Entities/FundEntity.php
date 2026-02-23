@@ -8,6 +8,8 @@ class FundEntity
 	private string $name;
 	private int $startYear;
 	private int $managerId;
+	/** @var string[] */
+	private array $aliases = [];
 	private ?\DateTimeInterface $createdAt = null;
 	private ?\DateTimeInterface $updatedAt = null;
 
@@ -49,6 +51,22 @@ class FundEntity
 	public function setManagerId(int $managerId): void
 	{
 		$this->managerId = $managerId;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getAliases(): array
+	{
+		return $this->aliases;
+	}
+
+	/**
+	 * @param string[] $aliases
+	 */
+	public function setAliases(array $aliases): void
+	{
+		$this->aliases = $aliases;
 	}
 
 	public function getCreatedAt(): ?\DateTimeInterface

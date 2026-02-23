@@ -13,6 +13,10 @@ class LaravelFundRepositoryAdapter
         $entity->setName((string) $data['name']);
         $entity->setStartYear((int) $data['start_year']);
         $entity->setManagerId((int) $data['manager_id']);
+        $entity->setAliases(array_values(array_map(
+            static fn (mixed $alias): string => (string) $alias,
+            (array) ($data['aliases'] ?? []),
+        )));
         $entity->setCreatedAt(isset($data['created_at']) ? new \DateTimeImmutable((string) $data['created_at']) : null);
         $entity->setUpdatedAt(isset($data['updated_at']) ? new \DateTimeImmutable((string) $data['updated_at']) : null);
 

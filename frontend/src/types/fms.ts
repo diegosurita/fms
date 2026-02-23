@@ -15,6 +15,7 @@ export interface Fund {
   manager_id?: number
   startYear?: number
   managerId?: number
+  aliases?: string[]
 }
 
 export interface DuplicatedFundRecord {
@@ -45,4 +46,5 @@ export interface FundPayload {
   name: string
   start_year: number
   manager_id: number
+  aliases: string[]
 }

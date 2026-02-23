@@ -39,37 +39,66 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
             });
         }
 
-        return $query
-            ->get()
-            ->map(fn (object $row) => LaravelFundRepositoryAdapter::fromDB((array) $row))
+        $rows = $query->get();
+
+        $fundIds = $rows
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->all();
+
+        $aliasesByFundId = $this->loadAliasesByFundIds($fundIds);
+
+        return $rows
+            ->map(function (object $row) use ($aliasesByFundId): FundEntity {
+                $data = (array) $row;
+                $fundId = isset($data['id']) ? (int) $data['id'] : null;
+
+                $data['aliases'] = $fundId !== null
+                    ? ($aliasesByFundId[$fundId] ?? [])
+                    : [];
+
+                return LaravelFundRepositoryAdapter::fromDB($data);
+            })
             ->all();
 
     }
 
     public function create(SaveFundDTO $saveFundDTO): FundEntity
     {
-        $fundId = DB::table('funds')->insertGetId([
+        $aliases = $this->normalizeAliases($saveFundDTO->aliases);
+
+        $this->ensureAliasesDoNotExist($aliases);
+
+        $fundId = DB::transaction(function () use ($saveFundDTO, $aliases): int {
+            $fundId = $this->insertFund($saveFundDTO);
+
+            if ($aliases !== []) {
+                DB::table('fund_aliases')->insert(array_map(
+                    static fn (string $alias): array => [
+                        'alias' => $alias,
+                        'fund' => $fundId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    $aliases,
+                ));
+            }
+
+            return $fundId;
+        });
+
+        return $this->findFundOrFail($fundId);
+    }
+
+    private function insertFund(SaveFundDTO $saveFundDTO): int
+    {
+        return DB::table('funds')->insertGetId([
             'name' => $saveFundDTO->name,
             'start_year' => $saveFundDTO->startYear,
             'manager_id' => $saveFundDTO->managerId,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        /** @var object $fund */
-        $fund = DB::table('funds')
-            ->select([
-                'id',
-                'name',
-                'start_year',
-                'manager_id',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('id', $fundId)
-            ->first();
-
-        return LaravelFundRepositoryAdapter::fromDB((array) $fund);
     }
 
     public function findDuplicateFundId(int $fundId): ?int
@@ -168,33 +197,38 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
             throw new \InvalidArgumentException('Fund id is required to update fund.');
         }
 
-        DB::table('funds')
-            ->where('id', $saveFundDTO->id)
-            ->update([
-                'name' => $saveFundDTO->name,
-                'start_year' => $saveFundDTO->startYear,
-                'manager_id' => $saveFundDTO->managerId,
-                'updated_at' => now(),
-            ]);
+        $aliases = $this->normalizeAliases($saveFundDTO->aliases);
 
-        /** @var object|null $fund */
-        $fund = DB::table('funds')
-            ->select([
-                'id',
-                'name',
-                'start_year',
-                'manager_id',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('id', $saveFundDTO->id)
-            ->first();
+        $this->ensureAliasesDoNotExist($aliases, $saveFundDTO->id);
 
-        if ($fund === null) {
-            throw new \RuntimeException('Fund not found.'); // TODO: return null instead of throwing exception
-        }
+        DB::transaction(function () use ($saveFundDTO, $aliases): void {
+            DB::table('funds')
+                ->where('id', $saveFundDTO->id)
+                ->update([
+                    'name' => $saveFundDTO->name,
+                    'start_year' => $saveFundDTO->startYear,
+                    'manager_id' => $saveFundDTO->managerId,
+                    'updated_at' => now(),
+                ]);
 
-        return LaravelFundRepositoryAdapter::fromDB((array) $fund);
+            DB::table('fund_aliases')
+                ->where('fund', $saveFundDTO->id)
+                ->delete();
+
+            if ($aliases !== []) {
+                DB::table('fund_aliases')->insert(array_map(
+                    static fn (string $alias): array => [
+                        'alias' => $alias,
+                        'fund' => $saveFundDTO->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    $aliases,
+                ));
+            }
+        });
+
+        return $this->findFundOrFail($saveFundDTO->id);
     }
 
     public function delete(int $id): bool
@@ -206,5 +240,104 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
                 'deleted_at' => now(),
                 'updated_at' => now(),
             ]) > 0;
+    }
+
+    private function findFundOrFail(int $id): FundEntity
+    {
+        /** @var object|null $fund */
+        $fund = DB::table('funds')
+            ->select([
+                'id',
+                'name',
+                'start_year',
+                'manager_id',
+                'created_at',
+                'updated_at',
+            ])
+            ->where('id', $id)
+            ->first();
+
+        if ($fund === null) {
+            throw new \RuntimeException('Fund not found.'); // TODO: return null instead of throwing exception
+        }
+
+        $data = (array) $fund;
+        $data['aliases'] = $this->loadAliasesByFundIds([$id])[$id] ?? [];
+
+        return LaravelFundRepositoryAdapter::fromDB($data);
+    }
+
+    /**
+     * @param string[] $aliases
+     *
+     * @return string[]
+     */
+    private function normalizeAliases(array $aliases): array
+    {
+        return array_values(array_unique(array_filter(array_map(
+            static fn (string $alias): string => trim($alias),
+            $aliases,
+        ), static fn (string $alias): bool => $alias !== '')));
+    }
+
+    /**
+     * @param string[] $aliases
+     */
+    private function ensureAliasesDoNotExist(array $aliases, ?int $ignoredFundId = null): void
+    {
+        if ($aliases === []) {
+            return;
+        }
+
+        $normalizedAliases = array_map(
+            static fn (string $alias): string => strtolower($alias),
+            $aliases,
+        );
+
+        $query = DB::table('fund_aliases')
+            ->whereIn(DB::raw('LOWER(alias)'), $normalizedAliases);
+
+        if ($ignoredFundId !== null) {
+            $query->where('fund', '!=', $ignoredFundId);
+        }
+
+        $existingAlias = $query->value('alias');
+
+        if ($existingAlias !== null) {
+            throw new \InvalidArgumentException('Alias already exists.');
+        }
+    }
+
+    /**
+     * @param int[] $fundIds
+     *
+     * @return array<int, string[]>
+     */
+    private function loadAliasesByFundIds(array $fundIds): array
+    {
+        if ($fundIds === []) {
+            return [];
+        }
+
+        /** @var array<int, array<int, object{fund:int, alias:string}>> $grouped */
+        $grouped = DB::table('fund_aliases')
+            ->select(['fund', 'alias'])
+            ->whereIn('fund', $fundIds)
+            ->get()
+            ->groupBy('fund')
+            ->all();
+
+        $aliasesByFund = [];
+
+        foreach ($grouped as $fundId => $items) {
+            $aliasItems = is_array($items) ? $items : $items->all();
+
+            $aliasesByFund[(int) $fundId] = array_values(array_map(
+                static fn (object $item): string => (string) $item->alias,
+                $aliasItems,
+            ));
+        }
+
+        return $aliasesByFund;
     }
 }

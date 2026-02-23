@@ -9,6 +9,7 @@ class SaveFundDTO
         public readonly int $startYear,
         public readonly int $managerId,
         public readonly ?int $id = null,
+        public readonly array $aliases = [],
     ) {
     }
 }

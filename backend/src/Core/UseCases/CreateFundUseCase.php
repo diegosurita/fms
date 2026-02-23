@@ -25,6 +25,8 @@ class CreateFundUseCase
             $this->eventDispatcher->dispatch(new FundCreatedEvent($fund));
 
             return $fund;
+        } catch (\InvalidArgumentException $exception) {
+            throw $exception;
         } catch (\Throwable $exception) {
             throw new \RuntimeException('Failed to create fund.', 0, $exception);
         }

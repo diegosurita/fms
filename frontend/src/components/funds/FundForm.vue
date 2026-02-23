@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import type { FundManager, FundPayload } from '@/types/fms'
 
 const props = defineProps<{
@@ -17,7 +17,17 @@ const form = reactive<FundPayload>({
   name: '',
   start_year: new Date().getFullYear(),
   manager_id: 1,
+  aliases: [],
 })
+
+const aliasesInput = ref('')
+
+const parsedAliases = computed<string[]>(() =>
+  aliasesInput.value
+    .split(';')
+    .map((alias) => alias.trim())
+    .filter((alias) => alias.length > 0),
+)
 
 watch(
   () => props.modelValue,
@@ -25,6 +35,8 @@ watch(
     form.name = value.name
     form.start_year = value.start_year
     form.manager_id = value.manager_id
+    form.aliases = value.aliases
+    aliasesInput.value = value.aliases.join('; ')
   },
   { immediate: true, deep: true },
 )
@@ -34,6 +46,7 @@ function onSubmit(): void {
     name: form.name.trim(),
     start_year: Number(form.start_year),
     manager_id: Number(form.manager_id),
+    aliases: parsedAliases.value,
   })
 }
 </script>
@@ -84,6 +97,19 @@ function onSubmit(): void {
             {{ manager.name }}
           </option>
         </select>
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700" for="fund-aliases"
+          >Aliases separated by colon (;)</label
+        >
+        <input
+          id="fund-aliases"
+          v-model="aliasesInput"
+          type="text"
+          placeholder="growth fund; global equity"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-slate-300 focus:ring"
+        />
       </div>
 
       <div class="flex gap-2 pt-2">

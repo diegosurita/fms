@@ -38,12 +38,20 @@ class FundController extends Controller
             'name' => ['required', 'string'],
             'start_year' => ['required', 'integer'],
             'manager_id' => ['required', 'integer'],
+            'aliases' => ['sometimes', 'array'],
+            'aliases.*' => ['string'],
         ]);
+
+        $aliases = array_values(array_map(
+            static fn (mixed $alias): string => (string) $alias,
+            (array) ($validated['aliases'] ?? []),
+        ));
 
         return new FundListResource($createFundUseCase->execute(new SaveFundDTO(
             (string) $validated['name'],
             (int) $validated['start_year'],
             (int) $validated['manager_id'],
+            aliases: $aliases,
         )));
     }
 
@@ -53,13 +61,21 @@ class FundController extends Controller
             'name' => ['required', 'string'],
             'start_year' => ['required', 'integer'],
             'manager_id' => ['required', 'integer'],
+            'aliases' => ['sometimes', 'array'],
+            'aliases.*' => ['string'],
         ]);
+
+        $aliases = array_values(array_map(
+            static fn (mixed $alias): string => (string) $alias,
+            (array) ($validated['aliases'] ?? []),
+        ));
 
         return new FundListResource($updateFundUseCase->execute(new SaveFundDTO(
             (string) $validated['name'],
             (int) $validated['start_year'],
             (int) $validated['manager_id'],
-            $id,
+            id: $id,
+            aliases: $aliases,
         )));
     }
 
