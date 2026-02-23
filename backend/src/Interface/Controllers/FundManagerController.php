@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use FMS\Core\DataTransferObjects\SaveFundManagerDTO;
 use FMS\Core\UseCases\CreateFundManagerUseCase;
 use FMS\Core\UseCases\ListFundManagersUseCase;
+use FMS\Core\UseCases\UpdateFundManagerUseCase;
 use FMS\Interface\Resources\FundManagerListResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,6 +27,18 @@ class FundManagerController extends Controller
 
         return new FundManagerListResource($createFundManagerUseCase->execute(new SaveFundManagerDTO(
             (string) $validated['name'],
+        )));
+    }
+
+    public function update(Request $request, int $id, UpdateFundManagerUseCase $updateFundManagerUseCase): JsonResource
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string'],
+        ]);
+
+        return new FundManagerListResource($updateFundManagerUseCase->execute(new SaveFundManagerDTO(
+            (string) $validated['name'],
+            $id,
         )));
     }
 }

@@ -48,4 +48,37 @@ class LaravelFundManagerRepository extends LaravelRepository implements FundMana
 
         return LaravelFundManagerEntityAdapter::fromDB((array) $fundManager);
     }
+
+    public function update(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity
+    {
+        if ($saveFundManagerDTO->id === null) {
+            throw new \InvalidArgumentException('Fund manager id is required to update fund manager.');
+        }
+
+        DB::table('fund_managers')
+            ->where('id', $saveFundManagerDTO->id)
+            ->whereNull('deleted_at')
+            ->update([
+                'name' => $saveFundManagerDTO->name,
+                'updated_at' => now(),
+            ]);
+
+        /** @var object|null $fundManager */
+        $fundManager = DB::table('fund_managers')
+            ->select([
+                'id',
+                'name',
+                'created_at',
+                'updated_at',
+            ])
+            ->where('id', $saveFundManagerDTO->id)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if ($fundManager === null) {
+            throw new \RuntimeException('Fund manager not found.');
+        }
+
+        return LaravelFundManagerEntityAdapter::fromDB((array) $fundManager);
+    }
 }

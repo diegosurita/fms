@@ -13,4 +13,6 @@ interface FundManagerRepository
     public function list(): array;
 
     public function create(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity;
+
+    public function update(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity;
 }
