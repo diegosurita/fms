@@ -32,9 +32,60 @@ const columns = computed<string[]>(() => {
   return Array.from(keys)
 })
 
-function formatCellValue(value: unknown): string {
+const DATE_COLUMN_PATTERN = /(?:^|_|-|\b)(date|time|timestamp)(?:$|_|-|\b)|(?:_at$|At$)/i
+
+function padDatePart(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+function formatDateTime(value: Date): string {
+  const month = padDatePart(value.getMonth() + 1)
+  const day = padDatePart(value.getDate())
+  const year = value.getFullYear()
+  const hours = padDatePart(value.getHours())
+  const minutes = padDatePart(value.getMinutes())
+  const seconds = padDatePart(value.getSeconds())
+
+  return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`
+}
+
+function isDateColumn(column: string): boolean {
+  return DATE_COLUMN_PATTERN.test(column)
+}
+
+function isParsableDateString(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?$/.test(value)
+}
+
+function formatColumnTitle(column: string): string {
+  const normalized = column
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return normalized.replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function formatCellValue(value: unknown, column: string): string {
   if (value === null || value === undefined) {
     return '-'
+  }
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return formatDateTime(value)
+  }
+
+  if (typeof value === 'string') {
+    const trimmedValue = value.trim()
+
+    if ((isDateColumn(column) || isParsableDateString(trimmedValue)) && trimmedValue) {
+      const parsedDate = new Date(trimmedValue)
+
+      if (!Number.isNaN(parsedDate.getTime())) {
+        return formatDateTime(parsedDate)
+      }
+    }
   }
 
   if (typeof value === 'object') {
@@ -62,7 +113,7 @@ function formatCellValue(value: unknown): string {
               :key="column"
               class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
             >
-              {{ column }}
+              {{ formatColumnTitle(column) }}
             </th>
             <th
               v-if="showActions"
@@ -78,9 +129,9 @@ function formatCellValue(value: unknown): string {
               v-for="column in columns"
               :key="column"
               class="max-w-xs truncate px-4 py-3 text-sm text-slate-700"
-              :title="formatCellValue(item[column])"
+              :title="formatCellValue(item[column], column)"
             >
-              {{ formatCellValue(item[column]) }}
+              {{ formatCellValue(item[column], column) }}
             </td>
             <td v-if="showActions" class="px-4 py-3 text-sm text-slate-700">
               <div class="flex gap-2">
