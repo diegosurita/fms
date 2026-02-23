@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use FMS\Core\Contracts\CompanyRepository;
 use FMS\Core\Contracts\EventDispatcherInterface;
+use FMS\Core\Contracts\FundManagerRepository;
 use Illuminate\Support\ServiceProvider;
 use FMS\Core\Contracts\FundRepository;
 use FMS\Core\Events\DuplicateFundFoundEvent;
@@ -12,6 +13,7 @@ use FMS\Infrastructure\Adapter\LaravelEventDispatcherAdapter;
 use FMS\Infrastructure\Listeners\DuplicatedFundListener;
 use FMS\Infrastructure\Listeners\ValidateUniqueFundListener;
 use FMS\Infrastructure\Repositories\LaravelCompanyRepository;
+use FMS\Infrastructure\Repositories\LaravelFundManagerRepository;
 use FMS\Infrastructure\Repositories\LaravelFundRepository;
 use Illuminate\Support\Facades\Event;
 
@@ -24,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Repository
         $this->app->bind(CompanyRepository::class, LaravelCompanyRepository::class);
+        $this->app->bind(FundManagerRepository::class, LaravelFundManagerRepository::class);
         $this->app->bind(FundRepository::class, LaravelFundRepository::class);
 
         // Event Dispatcher
