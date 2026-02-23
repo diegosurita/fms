@@ -61,7 +61,6 @@ class CreateFundUseCase
      */
     private function normalizeCompanies(array $companies): array
     {
-        return array_values(array_unique(array_filter(array_map(
         $normalizedCompanies = array_map(
             static fn (mixed $companyId): int => (int) $companyId,
             $companies,
@@ -75,4 +74,5 @@ class CreateFundUseCase
         $uniqueCompanies = array_unique($filteredCompanies);
 
         return array_values($uniqueCompanies);
+    }
 }

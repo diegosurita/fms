@@ -16,5 +16,7 @@ interface FundManagerRepository
 
     public function update(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity;
 
+    public function hasActiveFunds(int $id): bool;
+
     public function delete(int $id): bool;
 }

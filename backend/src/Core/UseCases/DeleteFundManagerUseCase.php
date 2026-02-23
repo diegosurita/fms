@@ -12,6 +12,12 @@ class DeleteFundManagerUseCase
 
     public function execute(int $id): void
     {
+        $hasActiveFunds = $this->fundManagerRepository->hasActiveFunds($id);
+
+        if ($hasActiveFunds) {
+            throw new \RuntimeException('Fund manager has active funds and cannot be deleted.', 409);
+        }
+
         $deleted = $this->fundManagerRepository->delete($id);
 
         if ($deleted === false) {

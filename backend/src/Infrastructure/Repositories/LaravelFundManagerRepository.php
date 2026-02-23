@@ -84,15 +84,6 @@ class LaravelFundManagerRepository extends LaravelRepository implements FundMana
 
     public function delete(int $id): bool
     {
-        $hasActiveFunds = DB::table('funds')
-            ->where('manager_id', $id)
-            ->whereNull('deleted_at')
-            ->exists();
-
-        if ($hasActiveFunds) {
-            throw new \RuntimeException('Fund manager has active funds and cannot be deleted.', 409);
-        }
-
         return DB::table('fund_managers')
             ->where('id', $id)
             ->whereNull('deleted_at')
@@ -100,5 +91,13 @@ class LaravelFundManagerRepository extends LaravelRepository implements FundMana
                 'deleted_at' => now(),
                 'updated_at' => now(),
             ]) > 0;
+    }
+
+    public function hasActiveFunds(int $id): bool
+    {
+        return DB::table('funds')
+            ->where('manager_id', $id)
+            ->whereNull('deleted_at')
+            ->exists();
     }
 }

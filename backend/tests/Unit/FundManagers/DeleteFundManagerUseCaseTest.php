@@ -5,6 +5,10 @@ use FMS\Core\UseCases\DeleteFundManagerUseCase;
 
 test('it delegates delete to fund manager repository', function () {
     $repository = \Mockery::mock(FundManagerRepository::class);
+    $repository->shouldReceive('hasActiveFunds')
+        ->once()
+        ->with(1)
+        ->andReturn(false);
     $repository->shouldReceive('delete')
         ->once()
         ->with(1)
@@ -19,6 +23,10 @@ test('it delegates delete to fund manager repository', function () {
 
 test('it throws runtime exception when fund manager is not found', function () {
     $repository = \Mockery::mock(FundManagerRepository::class);
+    $repository->shouldReceive('hasActiveFunds')
+        ->once()
+        ->with(999)
+        ->andReturn(false);
     $repository->shouldReceive('delete')
         ->once()
         ->with(999)
@@ -35,12 +43,14 @@ test('it throws runtime exception when fund manager is not found', function () {
     }
 });
 
-test('it bubbles relation error when fund manager has active funds', function () {
+test('it throws relation error when fund manager has active funds', function () {
     $repository = \Mockery::mock(FundManagerRepository::class);
-    $repository->shouldReceive('delete')
+    $repository->shouldReceive('hasActiveFunds')
         ->once()
         ->with(1)
-        ->andThrow(new RuntimeException('Fund manager has active funds and cannot be deleted.', 409));
+        ->andReturn(true);
+    $repository->shouldReceive('delete')
+        ->never();
 
     $useCase = new DeleteFundManagerUseCase($repository);
 
