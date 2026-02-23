@@ -71,6 +71,70 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
         return LaravelFundRepositoryAdapter::fromDB((array) $fund);
     }
 
+    public function findDuplicateFundId(int $fundId): ?int
+    {
+        /** @var object|null $fund */
+        $fund = DB::table('funds')
+            ->select([
+                'id',
+                'name',
+                'manager_id',
+            ])
+            ->where('id', $fundId)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if ($fund === null) {
+            return null;
+        }
+
+        $aliases = DB::table('fund_aliases')
+            ->where('fund', $fundId)
+            ->pluck('alias')
+            ->all();
+
+        $normalizedComparableNames = array_values(array_unique(array_filter(array_map(
+            static fn (string $value): string => strtolower(trim($value)),
+            [
+                (string) $fund->name,
+                ...array_map(static fn (mixed $alias): string => (string) $alias, $aliases),
+            ],
+        ))));
+
+        if ($normalizedComparableNames === []) {
+            return null;
+        }
+
+        /** @var object|null $duplicate */
+        $duplicate = DB::table('funds')
+            ->leftJoin('fund_aliases', 'fund_aliases.fund', '=', 'funds.id')
+            ->select(['funds.id'])
+            ->where('funds.manager_id', (int) $fund->manager_id)
+            ->where('funds.id', '!=', $fundId)
+            ->whereNull('funds.deleted_at')
+            ->where(function ($whereQuery) use ($normalizedComparableNames): void {
+                $whereQuery
+                    ->whereIn(DB::raw('LOWER(funds.name)'), $normalizedComparableNames)
+                    ->orWhereIn(DB::raw('LOWER(fund_aliases.alias)'), $normalizedComparableNames);
+            })
+            ->distinct()
+            ->first();
+
+        if ($duplicate === null) {
+            return null;
+        }
+
+        return (int) $duplicate->id;
+    }
+
+    public function registerDuplicatedFund(int $sourceFundId, int $duplicatedFundId): void
+    {
+        DB::table('duplicated_funds')->insert([
+            'source_fund_id' => $sourceFundId,
+            'duplicated_fund_id' => $duplicatedFundId,
+        ]);
+    }
+
     public function update(SaveFundDTO $saveFundDTO): FundEntity
     {
         if ($saveFundDTO->id === null) {

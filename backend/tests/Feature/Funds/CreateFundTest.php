@@ -1,8 +1,12 @@
 <?php
 
+use FMS\Core\Events\FundCreatedEvent;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 
 test('it creates a fund through endpoint', function () {
+    Event::fake();
+
     $managerId = DB::table('fund_managers')->insertGetId([
         'name' => 'Manager 1',
         'created_at' => now(),
@@ -27,6 +31,13 @@ test('it creates a fund through endpoint', function () {
         'start_year' => 2022,
         'manager_id' => $managerId,
     ]);
+
+    Event::assertDispatched(FundCreatedEvent::class, function (FundCreatedEvent $event) use ($managerId): bool {
+        return $event->fund->getName() === 'Alpha Fund'
+            && $event->fund->getStartYear() === 2022
+            && $event->fund->getManagerId() === $managerId
+            && $event->fund->getId() !== null;
+    });
 });
 
 test('it validates required fields when creating fund through endpoint', function () {

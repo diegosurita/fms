@@ -14,6 +14,10 @@ interface FundRepository
 
     public function create(SaveFundDTO $saveFundDTO): FundEntity;
 
+    public function findDuplicateFundId(int $fundId): ?int;
+
+    public function registerDuplicatedFund(int $sourceFundId, int $duplicatedFundId): void;
+
     public function update(SaveFundDTO $saveFundDTO): FundEntity;
 
     public function delete(int $id): bool;

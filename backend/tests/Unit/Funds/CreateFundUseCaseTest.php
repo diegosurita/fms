@@ -1,8 +1,10 @@
 <?php
 
+use FMS\Core\Contracts\EventDispatcherInterface;
 use FMS\Core\Contracts\FundRepository;
 use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\Entities\FundEntity;
+use FMS\Core\Events\FundCreatedEvent;
 use FMS\Core\UseCases\CreateFundUseCase;
 
 test('it delegates to fund repository and returns created fund', function () {
@@ -20,7 +22,15 @@ test('it delegates to fund repository and returns created fund', function () {
         ->with($saveFundDTO)
         ->andReturn($createdFund);
 
-    $useCase = new CreateFundUseCase($repository);
+    $eventDispatcher = \Mockery::mock(EventDispatcherInterface::class);
+    $eventDispatcher->shouldReceive('dispatch')
+        ->once()
+        ->with(\Mockery::on(function (object $event) use ($createdFund): bool {
+            return $event instanceof FundCreatedEvent
+                && $event->fund === $createdFund;
+        }));
+
+    $useCase = new CreateFundUseCase($repository, $eventDispatcher);
 
     $result = $useCase->execute($saveFundDTO);
 
@@ -38,7 +48,10 @@ test('it wraps repository exception when creating fund', function () {
         ->with($saveFundDTO)
         ->andThrow($previousException);
 
-    $useCase = new CreateFundUseCase($repository);
+    $eventDispatcher = \Mockery::mock(EventDispatcherInterface::class);
+    $eventDispatcher->shouldNotReceive('dispatch');
+
+    $useCase = new CreateFundUseCase($repository, $eventDispatcher);
 
     try {
         $useCase->execute($saveFundDTO);
