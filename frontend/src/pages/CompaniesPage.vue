@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import CompanyForm from '@/components/companies/CompanyForm.vue'
+import CompanyFormDrawer from '@/components/companies/CompanyFormDrawer.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { fmsApi } from '@/services/fmsApi'
@@ -12,6 +12,7 @@ const error = ref('')
 const success = ref('')
 
 const editingCompanyId = ref<number | null>(null)
+const isFormDrawerOpen = ref(false)
 const formModel = ref<CompanyPayload>({ name: '' })
 
 async function loadCompanies(): Promise<void> {
@@ -32,6 +33,16 @@ function resetForm(): void {
   formModel.value = { name: '' }
 }
 
+function openCreateCompanyDrawer(): void {
+  resetForm()
+  isFormDrawerOpen.value = true
+}
+
+function closeFormDrawer(): void {
+  isFormDrawerOpen.value = false
+  resetForm()
+}
+
 function editCompany(item: Record<string, unknown>): void {
   const id = Number(item.id)
 
@@ -41,6 +52,7 @@ function editCompany(item: Record<string, unknown>): void {
 
   editingCompanyId.value = id
   formModel.value = { name: String(item.name ?? '') }
+  isFormDrawerOpen.value = true
 }
 
 async function saveCompany(payload: CompanyPayload): Promise<void> {
@@ -56,7 +68,7 @@ async function saveCompany(payload: CompanyPayload): Promise<void> {
       success.value = 'Company updated successfully.'
     }
 
-    resetForm()
+    closeFormDrawer()
     await loadCompanies()
   } catch (requestError) {
     error.value = requestError instanceof Error ? requestError.message : 'Failed to save company.'
@@ -78,7 +90,7 @@ async function removeCompany(item: Record<string, unknown>): Promise<void> {
     success.value = 'Company deleted successfully.'
 
     if (editingCompanyId.value === id) {
-      resetForm()
+      closeFormDrawer()
     }
 
     await loadCompanies()
@@ -94,6 +106,13 @@ onMounted(loadCompanies)
   <section>
     <PageHeader title="Companies" description="Mapped to /companies and full CRUD operations.">
       <template #actions>
+        <button
+          type="button"
+          class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          @click="openCreateCompanyDrawer"
+        >
+          New Company
+        </button>
         <button
           type="button"
           class="rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-200"
@@ -116,21 +135,20 @@ onMounted(loadCompanies)
       </p>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <CompanyForm
-        :model-value="formModel"
-        :editing="editingCompanyId !== null"
-        @submit="saveCompany"
-        @cancel="resetForm"
-      />
+    <DataTable
+      :items="companies"
+      :loading="loading"
+      empty-message="No companies found."
+      @edit="editCompany"
+      @delete="removeCompany"
+    />
 
-      <DataTable
-        :items="companies"
-        :loading="loading"
-        empty-message="No companies found."
-        @edit="editCompany"
-        @delete="removeCompany"
-      />
-    </div>
+    <CompanyFormDrawer
+      :open="isFormDrawerOpen"
+      :model-value="formModel"
+      :editing="editingCompanyId !== null"
+      @submit="saveCompany"
+      @close="closeFormDrawer"
+    />
   </section>
 </template>

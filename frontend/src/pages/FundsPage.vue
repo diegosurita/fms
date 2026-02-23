@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import DataTable from '@/components/common/DataTable.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
-import FundForm from '@/components/funds/FundForm.vue'
+import FundFormDrawer from '@/components/funds/FundFormDrawer.vue'
 import { fmsApi } from '@/services/fmsApi'
 import type { Fund, FundPayload } from '@/types/fms'
 
@@ -12,6 +12,7 @@ const error = ref('')
 const success = ref('')
 
 const editingFundId = ref<number | null>(null)
+const isFormDrawerOpen = ref(false)
 const formModel = ref<FundPayload>({
   name: '',
   start_year: new Date().getFullYear(),
@@ -40,6 +41,16 @@ function resetForm(): void {
   }
 }
 
+function openCreateFundDrawer(): void {
+  resetForm()
+  isFormDrawerOpen.value = true
+}
+
+function closeFormDrawer(): void {
+  isFormDrawerOpen.value = false
+  resetForm()
+}
+
 function editFund(item: Record<string, unknown>): void {
   const id = Number(item.id)
 
@@ -53,6 +64,7 @@ function editFund(item: Record<string, unknown>): void {
     start_year: Number(item.start_year ?? new Date().getFullYear()),
     manager_id: Number(item.manager_id ?? 1),
   }
+  isFormDrawerOpen.value = true
 }
 
 async function saveFund(payload: FundPayload): Promise<void> {
@@ -68,7 +80,7 @@ async function saveFund(payload: FundPayload): Promise<void> {
       success.value = 'Fund updated successfully.'
     }
 
-    resetForm()
+    closeFormDrawer()
     await loadFunds()
   } catch (requestError) {
     error.value = requestError instanceof Error ? requestError.message : 'Failed to save fund.'
@@ -90,7 +102,7 @@ async function removeFund(item: Record<string, unknown>): Promise<void> {
     success.value = 'Fund deleted successfully.'
 
     if (editingFundId.value === id) {
-      resetForm()
+      closeFormDrawer()
     }
 
     await loadFunds()
@@ -106,6 +118,13 @@ onMounted(loadFunds)
   <section>
     <PageHeader title="Funds" description="Mapped to /funds and full CRUD operations.">
       <template #actions>
+        <button
+          type="button"
+          class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          @click="openCreateFundDrawer"
+        >
+          New Fund
+        </button>
         <button
           type="button"
           class="rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-200"
@@ -128,16 +147,20 @@ onMounted(loadFunds)
       </p>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <FundForm :model-value="formModel" :editing="editingFundId !== null" @submit="saveFund" @cancel="resetForm" />
+    <DataTable
+      :items="funds"
+      :loading="loading"
+      empty-message="No funds found."
+      @edit="editFund"
+      @delete="removeFund"
+    />
 
-      <DataTable
-        :items="funds"
-        :loading="loading"
-        empty-message="No funds found."
-        @edit="editFund"
-        @delete="removeFund"
-      />
-    </div>
+    <FundFormDrawer
+      :open="isFormDrawerOpen"
+      :model-value="formModel"
+      :editing="editingFundId !== null"
+      @submit="saveFund"
+      @close="closeFormDrawer"
+    />
   </section>
 </template>

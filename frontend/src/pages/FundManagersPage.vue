@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import DataTable from '@/components/common/DataTable.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
-import FundManagerForm from '@/components/fundManagers/FundManagerForm.vue'
+import FundManagerFormDrawer from '@/components/fundManagers/FundManagerFormDrawer.vue'
 import { fmsApi } from '@/services/fmsApi'
 import type { FundManager, FundManagerPayload } from '@/types/fms'
 
@@ -12,6 +12,7 @@ const error = ref('')
 const success = ref('')
 
 const editingFundManagerId = ref<number | null>(null)
+const isFormDrawerOpen = ref(false)
 const formModel = ref<FundManagerPayload>({ name: '' })
 
 async function loadFundManagers(): Promise<void> {
@@ -33,6 +34,16 @@ function resetForm(): void {
   formModel.value = { name: '' }
 }
 
+function openCreateFundManagerDrawer(): void {
+  resetForm()
+  isFormDrawerOpen.value = true
+}
+
+function closeFormDrawer(): void {
+  isFormDrawerOpen.value = false
+  resetForm()
+}
+
 function editFundManager(item: Record<string, unknown>): void {
   const id = Number(item.id)
 
@@ -42,6 +53,7 @@ function editFundManager(item: Record<string, unknown>): void {
 
   editingFundManagerId.value = id
   formModel.value = { name: String(item.name ?? '') }
+  isFormDrawerOpen.value = true
 }
 
 async function saveFundManager(payload: FundManagerPayload): Promise<void> {
@@ -57,7 +69,7 @@ async function saveFundManager(payload: FundManagerPayload): Promise<void> {
       success.value = 'Fund manager updated successfully.'
     }
 
-    resetForm()
+    closeFormDrawer()
     await loadFundManagers()
   } catch (requestError) {
     error.value = requestError instanceof Error ? requestError.message : 'Failed to save fund manager.'
@@ -79,7 +91,7 @@ async function removeFundManager(item: Record<string, unknown>): Promise<void> {
     success.value = 'Fund manager deleted successfully.'
 
     if (editingFundManagerId.value === id) {
-      resetForm()
+      closeFormDrawer()
     }
 
     await loadFundManagers()
@@ -96,6 +108,13 @@ onMounted(loadFundManagers)
   <section>
     <PageHeader title="Fund Managers" description="Mapped to /fund-managers and full CRUD operations.">
       <template #actions>
+        <button
+          type="button"
+          class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          @click="openCreateFundManagerDrawer"
+        >
+          New Fund Manager
+        </button>
         <button
           type="button"
           class="rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-200"
@@ -118,21 +137,20 @@ onMounted(loadFundManagers)
       </p>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <FundManagerForm
-        :model-value="formModel"
-        :editing="editingFundManagerId !== null"
-        @submit="saveFundManager"
-        @cancel="resetForm"
-      />
+    <DataTable
+      :items="fundManagers"
+      :loading="loading"
+      empty-message="No fund managers found."
+      @edit="editFundManager"
+      @delete="removeFundManager"
+    />
 
-      <DataTable
-        :items="fundManagers"
-        :loading="loading"
-        empty-message="No fund managers found."
-        @edit="editFundManager"
-        @delete="removeFundManager"
-      />
-    </div>
+    <FundManagerFormDrawer
+      :open="isFormDrawerOpen"
+      :model-value="formModel"
+      :editing="editingFundManagerId !== null"
+      @submit="saveFundManager"
+      @close="closeFormDrawer"
+    />
   </section>
 </template>
