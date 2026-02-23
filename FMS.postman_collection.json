@@ -1,0 +1,444 @@
+{
+  "info": {
+    "_postman_id": "37fac36a-d00e-4f85-bc9e-e35bd31c30a5",
+    "name": "FMS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "7438033",
+    "_collection_link": "https://go.postman.co/collection/7438033-37fac36a-d00e-4f85-bc9e-e35bd31c30a5?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Fund",
+      "item": [
+        {
+          "name": "List Funds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{API_URL}}/v1/funds?filter=fund 1",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "funds"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "fund 1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Fund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"ABC Fund\",\n    \"start_year\": 2020,\n    \"manager_id\": 2,\n    \"aliases\": [\"Fund Number One\", \"Good Fund\"],\n    \"companies\": [3, 2]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{API_URL}}/v1/funds",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "funds"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Fund",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"ABC Fund Holding\",\n    \"start_year\": 2020,\n    \"manager_id\": 1,\n    \"aliases\": [\"Fund Number One Updated\", \"Good Fund Updated\"]\n}"
+            },
+            "url": {
+              "raw": "{{API_URL}}/v1/funds/5",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "funds",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Fund",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{API_URL}}/v1/funds/10",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "funds",
+                "10"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Duplicated Funds",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{API_URL}}/v1/funds/duplicated",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "funds",
+                "duplicated"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Company",
+      "item": [
+        {
+          "name": "List Companies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{API_URL}}/v1/companies",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "companies"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"ABC Company\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{API_URL}}/v1/companies",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "companies"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Company",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"ABC Company Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{API_URL}}/v1/companies/11",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "companies",
+                "11"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Company",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{API_URL}}/v1/companies/11",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "companies",
+                "11"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Fund Managers",
+      "item": [
+        {
+          "name": "List Fund Managers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{API_URL}}/v1/fund-managers",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "fund-managers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Fund Manager",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"ABC Manager\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{API_URL}}/v1/fund-managers",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "fund-managers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Fund Manager",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"ABC Manager Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{API_URL}}/v1/fund-managers/6",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "fund-managers",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Fund Manager",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{API_URL}}/v1/fund-managers/6",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "v1",
+                "fund-managers",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "API_URL",
+      "value": ""
+    }
+  ]
+}
