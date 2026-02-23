@@ -51,12 +51,12 @@ class DuplicatedFundsResource extends JsonResource
         return [
             'id' => $fundId,
             'name' => $fund->getName(),
-            'startYear' => $fund->getStartYear(),
-            'managerId' => $managerId,
-            'managerName' => $managerName !== null ? (string) $managerName : null,
+            'start_year' => $fund->getStartYear(),
+            'manager_id' => $managerId,
+            'manager_name' => $managerName !== null ? (string) $managerName : null,
             'aliases' => $aliases,
-            'createdAt' => $fund->getCreatedAt()?->format(DATE_ATOM),
-            'updatedAt' => $fund->getUpdatedAt()?->format(DATE_ATOM),
+            'created_at' => $fund->getCreatedAt()?->format(DATE_ATOM),
+            'updated_at' => $fund->getUpdatedAt()?->format(DATE_ATOM),
         ];
     }
 }

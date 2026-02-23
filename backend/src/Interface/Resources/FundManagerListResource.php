@@ -21,8 +21,8 @@ class FundManagerListResource extends JsonResource
         return [
             'id' => $fundManager->getId(),
             'name' => $fundManager->getName(),
-            'createdAt' => $fundManager->getCreatedAt()?->format(DATE_ATOM),
-            'updatedAt' => $fundManager->getUpdatedAt()?->format(DATE_ATOM),
+            'created_at' => $fundManager->getCreatedAt()?->format(DATE_ATOM),
+            'updated_at' => $fundManager->getUpdatedAt()?->format(DATE_ATOM),
         ];
     }
 }

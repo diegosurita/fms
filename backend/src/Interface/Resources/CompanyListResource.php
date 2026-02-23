@@ -21,8 +21,8 @@ class CompanyListResource extends JsonResource
         return [
             'id' => $company->getId(),
             'name' => $company->getName(),
-            'createdAt' => $company->getCreatedAt()?->format(DATE_ATOM),
-            'updatedAt' => $company->getUpdatedAt()?->format(DATE_ATOM),
+            'created_at' => $company->getCreatedAt()?->format(DATE_ATOM),
+            'updated_at' => $company->getUpdatedAt()?->format(DATE_ATOM),
         ];
     }
 }

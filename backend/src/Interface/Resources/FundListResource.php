@@ -21,10 +21,10 @@ class FundListResource extends JsonResource
         return [
             'id' => $fund->getId(),
             'name' => $fund->getName(),
-            'startYear' => $fund->getStartYear(),
-            'managerId' => $fund->getManagerId(),
-            'createdAt' => $fund->getCreatedAt()?->format(DATE_ATOM),
-            'updatedAt' => $fund->getUpdatedAt()?->format(DATE_ATOM),
+            'start_year' => $fund->getStartYear(),
+            'manager_id' => $fund->getManagerId(),
+            'created_at' => $fund->getCreatedAt()?->format(DATE_ATOM),
+            'updated_at' => $fund->getUpdatedAt()?->format(DATE_ATOM),
         ];
     }
 }

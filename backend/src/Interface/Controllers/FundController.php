@@ -36,14 +36,14 @@ class FundController extends Controller
         // TODO: Add idempotency key to avoid creating multiple funds if the request is retried
         $validated = $request->validate([
             'name' => ['required', 'string'],
-            'startYear' => ['required', 'integer'],
-            'managerId' => ['required', 'integer'],
+            'start_year' => ['required', 'integer'],
+            'manager_id' => ['required', 'integer'],
         ]);
 
         return new FundListResource($createFundUseCase->execute(new SaveFundDTO(
             (string) $validated['name'],
-            (int) $validated['startYear'],
-            (int) $validated['managerId'],
+            (int) $validated['start_year'],
+            (int) $validated['manager_id'],
         )));
     }
 
@@ -51,14 +51,14 @@ class FundController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string'],
-            'startYear' => ['required', 'integer'],
-            'managerId' => ['required', 'integer'],
+            'start_year' => ['required', 'integer'],
+            'manager_id' => ['required', 'integer'],
         ]);
 
         return new FundListResource($updateFundUseCase->execute(new SaveFundDTO(
             (string) $validated['name'],
-            (int) $validated['startYear'],
-            (int) $validated['managerId'],
+            (int) $validated['start_year'],
+            (int) $validated['manager_id'],
             $id,
         )));
     }
