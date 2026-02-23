@@ -5,6 +5,7 @@ namespace FMS\Infrastructure\Repositories;
 use FMS\Core\Contracts\FundRepository;
 use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\Entities\FundEntity;
+use FMS\Infrastructure\Adapter\LaravelDuplicatedFundsEntityAdapter;
 use FMS\Infrastructure\Adapter\LaravelFundRepositoryAdapter;
 use Illuminate\Support\Facades\DB;
 
@@ -125,6 +126,32 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
         }
 
         return (int) $duplicate->id;
+    }
+
+    public function getDuplicated(): array
+    {
+        return DB::table('duplicated_funds')
+            ->join('funds as source_funds', 'source_funds.id', '=', 'duplicated_funds.source_fund_id')
+            ->join('funds as duplicated_fund', 'duplicated_fund.id', '=', 'duplicated_funds.duplicated_fund_id')
+            ->whereNull('source_funds.deleted_at')
+            ->whereNull('duplicated_fund.deleted_at')
+            ->select([
+                'source_funds.id as source_id',
+                'source_funds.name as source_name',
+                'source_funds.start_year as source_start_year',
+                'source_funds.manager_id as source_manager_id',
+                'source_funds.created_at as source_created_at',
+                'source_funds.updated_at as source_updated_at',
+                'duplicated_fund.id as duplicated_id',
+                'duplicated_fund.name as duplicated_name',
+                'duplicated_fund.start_year as duplicated_start_year',
+                'duplicated_fund.manager_id as duplicated_manager_id',
+                'duplicated_fund.created_at as duplicated_created_at',
+                'duplicated_fund.updated_at as duplicated_updated_at',
+            ])
+            ->get()
+            ->map(static fn (object $row) => LaravelDuplicatedFundsEntityAdapter::fromDB((array) $row))
+            ->all();
     }
 
     public function registerDuplicatedFund(int $sourceFundId, int $duplicatedFundId): void

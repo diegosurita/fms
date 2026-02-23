@@ -5,10 +5,13 @@ namespace FMS\Interface\Controllers;
 use App\Http\Controllers\Controller;
 use FMS\Core\DataTransferObjects\SaveFundDTO;
 use FMS\Core\UseCases\CreateFundUseCase;
+use FMS\Core\UseCases\GetDuplicatedFundsUseCase;
+use FMS\Interface\Resources\DuplicatedFundsResource;
 use FMS\Interface\Resources\FundListResource;
 use FMS\Core\UseCases\DeleteFundUseCase;
 use FMS\Core\UseCases\ListFundsUseCase;
 use FMS\Core\UseCases\UpdateFundUseCase;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,6 +24,11 @@ class FundController extends Controller
         $filter = trim((string) $request->query('filter', ''));
 
         return FundListResource::collection($listFundsUseCase->execute($filter === '' ? null : $filter));
+    }
+
+    public function listDuplicated(GetDuplicatedFundsUseCase $getDuplicatedFundsUseCase): JsonResponse
+    {
+        return DuplicatedFundsResource::collection($getDuplicatedFundsUseCase->execute())->response();
     }
 
     public function create(Request $request, CreateFundUseCase $createFundUseCase): JsonResource
