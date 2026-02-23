@@ -38,9 +38,9 @@ class CreateFundUseCase
                 );
             }
 
-            $this->fundRepository->commitTransaction();
-            
             $this->eventDispatcher->dispatch(new FundCreatedEvent($fund));
+
+            $this->fundRepository->commitTransaction();            
 
             return $fund;
         } catch (\InvalidArgumentException $exception) {
@@ -62,8 +62,17 @@ class CreateFundUseCase
     private function normalizeCompanies(array $companies): array
     {
         return array_values(array_unique(array_filter(array_map(
+        $normalizedCompanies = array_map(
             static fn (mixed $companyId): int => (int) $companyId,
             $companies,
-        ), static fn (int $companyId): bool => $companyId > 0)));
-    }
+        );
+
+        $filteredCompanies = array_filter(
+            $normalizedCompanies,
+            static fn (int $companyId): bool => $companyId > 0,
+        );
+
+        $uniqueCompanies = array_unique($filteredCompanies);
+
+        return array_values($uniqueCompanies);
 }
