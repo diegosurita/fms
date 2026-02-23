@@ -1,16 +1,14 @@
-export type EntityRecord = Record<string, unknown>
-
-export interface Company extends EntityRecord {
+export interface Company {
   id: number
   name: string
 }
 
-export interface FundManager extends EntityRecord {
+export interface FundManager {
   id: number
   name: string
 }
 
-export interface Fund extends EntityRecord {
+export interface Fund {
   id: number
   name: string
   start_year?: number
@@ -19,7 +17,7 @@ export interface Fund extends EntityRecord {
   managerId?: number
 }
 
-export interface DuplicatedFundRecord extends EntityRecord {
+export interface DuplicatedFundRecord {
   id: number
   name: string
   startYear: number
@@ -30,7 +28,7 @@ export interface DuplicatedFundRecord extends EntityRecord {
   updatedAt?: string | null
 }
 
-export interface DuplicatedFund extends EntityRecord {
+export interface DuplicatedFund {
   source: DuplicatedFundRecord
   duplicated: DuplicatedFundRecord
 }
