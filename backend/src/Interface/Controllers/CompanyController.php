@@ -5,10 +5,12 @@ namespace FMS\Interface\Controllers;
 use App\Http\Controllers\Controller;
 use FMS\Core\DataTransferObjects\SaveCompanyDTO;
 use FMS\Core\UseCases\CreateCompanyUseCase;
+use FMS\Core\UseCases\DeleteCompanyUseCase;
 use FMS\Core\UseCases\ListCompaniesUseCase;
 use FMS\Core\UseCases\UpdateCompanyUseCase;
 use FMS\Interface\Resources\CompanyListResource;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -43,5 +45,12 @@ class CompanyController extends Controller
             (string) $validated['name'],
             $id,
         )));
+    }
+
+    public function delete(int $id, DeleteCompanyUseCase $deleteCompanyUseCase): Response
+    {
+        $deleteCompanyUseCase->execute($id);
+
+        return response()->noContent();
     }
 }

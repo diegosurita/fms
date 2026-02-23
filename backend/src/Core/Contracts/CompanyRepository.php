@@ -15,4 +15,6 @@ interface CompanyRepository
     public function create(SaveCompanyDTO $saveCompanyDTO): CompanyEntity;
 
     public function update(SaveCompanyDTO $saveCompanyDTO): CompanyEntity;
+
+    public function delete(int $id): bool;
 }
