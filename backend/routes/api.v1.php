@@ -16,6 +16,7 @@ Route::controller(FundController::class)->group(function () {
 Route::controller(CompanyController::class)->group(function () {
     Route::get('/companies', 'list');
     Route::post('/companies', 'create');
+    Route::put('/companies/{id}', 'update');
 });
 
 Route::controller(FundManagerController::class)->group(function () {

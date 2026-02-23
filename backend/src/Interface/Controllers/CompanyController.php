@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use FMS\Core\DataTransferObjects\SaveCompanyDTO;
 use FMS\Core\UseCases\CreateCompanyUseCase;
 use FMS\Core\UseCases\ListCompaniesUseCase;
+use FMS\Core\UseCases\UpdateCompanyUseCase;
 use FMS\Interface\Resources\CompanyListResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,6 +30,18 @@ class CompanyController extends Controller
 
         return new CompanyListResource($createCompanyUseCase->execute(new SaveCompanyDTO(
             (string) $validated['name'],
+        )));
+    }
+
+    public function update(Request $request, int $id, UpdateCompanyUseCase $updateCompanyUseCase): JsonResource
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string'],
+        ]);
+
+        return new CompanyListResource($updateCompanyUseCase->execute(new SaveCompanyDTO(
+            (string) $validated['name'],
+            $id,
         )));
     }
 }

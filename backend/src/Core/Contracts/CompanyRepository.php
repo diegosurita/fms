@@ -13,4 +13,6 @@ interface CompanyRepository
     public function list(?string $filter = null): array;
 
     public function create(SaveCompanyDTO $saveCompanyDTO): CompanyEntity;
+
+    public function update(SaveCompanyDTO $saveCompanyDTO): CompanyEntity;
 }

@@ -52,4 +52,35 @@ class LaravelCompanyRepository extends LaravelRepository implements CompanyRepos
 
         return LaravelCompanyEntityAdapter::fromDB((array) $company);
     }
+
+    public function update(SaveCompanyDTO $saveCompanyDTO): CompanyEntity
+    {
+        if ($saveCompanyDTO->id === null) {
+            throw new \InvalidArgumentException('Company id is required to update company.');
+        }
+
+        DB::table('companies')
+            ->where('id', $saveCompanyDTO->id)
+            ->update([
+                'name' => $saveCompanyDTO->name,
+                'updated_at' => now(),
+            ]);
+
+        /** @var object|null $company */
+        $company = DB::table('companies')
+            ->select([
+                'id',
+                'name',
+                'created_at',
+                'updated_at',
+            ])
+            ->where('id', $saveCompanyDTO->id)
+            ->first();
+
+        if ($company === null) {
+            throw new \RuntimeException('Company not found.');
+        }
+
+        return LaravelCompanyEntityAdapter::fromDB((array) $company);
+    }
 }
