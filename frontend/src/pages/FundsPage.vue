@@ -4,10 +4,11 @@ import PageHeader from '@/components/common/PageHeader.vue'
 import DuplicatedFundDrawer from '@/components/funds/DuplicatedFundDrawer.vue'
 import FundFormDrawer from '@/components/funds/FundFormDrawer.vue'
 import { fmsApi } from '@/services/fmsApi'
-import type { DuplicatedFund, DuplicatedFundRecord, Fund, FundPayload } from '@/types/fms'
+import type { DuplicatedFund, DuplicatedFundRecord, Fund, FundManager, FundPayload } from '@/types/fms'
 
 const funds = ref<Fund[]>([])
 const duplicatedFunds = ref<DuplicatedFund[]>([])
+const fundManagers = ref<FundManager[]>([])
 const loading = ref(false)
 const error = ref('')
 const success = ref('')
@@ -79,6 +80,7 @@ async function loadFunds(): Promise<void> {
 
     funds.value = fundsResponse
     duplicatedFunds.value = duplicatedResponse
+    fundManagers.value = managersResponse
     managersById.value = managersResponse.reduce<Record<number, string>>((result, manager) => {
       result[Number(manager.id)] = String(manager.name)
       return result
@@ -297,6 +299,7 @@ onMounted(loadFunds)
       :open="isFormDrawerOpen"
       :model-value="formModel"
       :editing="editingFundId !== null"
+      :fund-managers="fundManagers"
       @submit="saveFund"
       @close="closeFormDrawer"
     />

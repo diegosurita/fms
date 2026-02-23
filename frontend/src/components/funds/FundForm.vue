@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
-import type { FundPayload } from '@/types/fms'
+import type { FundManager, FundPayload } from '@/types/fms'
 
 const props = defineProps<{
   modelValue: FundPayload
   editing: boolean
+  fundManagers: FundManager[]
 }>()
 
 const emit = defineEmits<{
@@ -71,16 +72,18 @@ function onSubmit(): void {
 
       <div>
         <label class="mb-1 block text-sm font-medium text-slate-700" for="fund-manager-id"
-          >Manager ID</label
+          >Manager</label
         >
-        <input
+        <select
           id="fund-manager-id"
           v-model.number="form.manager_id"
-          type="number"
-          min="1"
           required
           class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-slate-300 focus:ring"
-        />
+        >
+          <option v-for="manager in props.fundManagers" :key="manager.id" :value="manager.id">
+            {{ manager.name }}
+          </option>
+        </select>
       </div>
 
       <div class="flex gap-2 pt-2">
