@@ -60,6 +60,10 @@ Applications:
 - Idempotency for creating and updating resources is not implemented in the current version, but I consider it an important feature for real-world applications.
 - The event-driven architecture is not using any external message broker or queue system, but in a production environment, this would be a crucial aspect to consider for scalability and reliability.
 - Entity classes are anemic in this version. Because of the time constraint I focused on getting the core functionality working, but in a real application, I would consider adding more behavior to the entities to better encapsulate business rules.
+- Once the dataset grows, we might want to consider adding indexes to the database tables `companies.name`, `funds.name`, and `fund_aliases.alias` to improve query performance for search operations.
+- I haven't implemented any caching strategies, but in a production environment, caching could be beneficial for improving performance, especially for frequently accessed data like fund details or company information.
+- I did not implemented any logging or monitoring in this version, but in a real application, these would be important for diagnosing issues and understanding application behavior in production.
+- I didn't have time to implement frontend tests, but I would consider adding unit tests for components and integration tests using Playwright to ensure the frontend behaves as expected and to catch regressions early.
 
 ## Database ER diagram
 
