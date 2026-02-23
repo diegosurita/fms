@@ -238,6 +238,14 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
         return $this->findFundOrFail($saveFundDTO->id);
     }
 
+    public function exists(int $id): bool
+    {
+        return DB::table('funds')
+            ->where('id', $id)
+            ->whereNull('deleted_at')
+            ->exists();
+    }
+
     public function delete(int $id): bool
     {
         return DB::table('funds')

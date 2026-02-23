@@ -84,6 +84,14 @@ class LaravelCompanyRepository extends LaravelRepository implements CompanyRepos
         return LaravelCompanyEntityAdapter::fromDB((array) $company);
     }
 
+    public function exists(int $id): bool
+    {
+        return DB::table('companies')
+            ->where('id', $id)
+            ->whereNull('deleted_at')
+            ->exists();
+    }
+
     /**
      * @param int[] $companyIds
      */

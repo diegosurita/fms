@@ -82,6 +82,14 @@ class LaravelFundManagerRepository extends LaravelRepository implements FundMana
         return LaravelFundManagerEntityAdapter::fromDB((array) $fundManager);
     }
 
+    public function exists(int $id): bool
+    {
+        return DB::table('fund_managers')
+            ->where('id', $id)
+            ->whereNull('deleted_at')
+            ->exists();
+    }
+
     public function delete(int $id): bool
     {
         return DB::table('fund_managers')

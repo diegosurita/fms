@@ -15,6 +15,10 @@ test('it delegates to fund repository and returns updated fund', function () {
     $updatedFund->setManagerId(20);
 
     $repository = \Mockery::mock(FundRepository::class);
+    $repository->shouldReceive('exists')
+        ->once()
+        ->with(1)
+        ->andReturn(true);
     $repository->shouldReceive('update')
         ->once()
         ->with($saveFundDTO)
@@ -33,6 +37,10 @@ test('it propagates repository exception when updating fund', function () {
     $previousException = new RuntimeException('database is unavailable');
 
     $repository = \Mockery::mock(FundRepository::class);
+    $repository->shouldReceive('exists')
+        ->once()
+        ->with(1)
+        ->andReturn(true);
     $repository->shouldReceive('update')
         ->once()
         ->with($saveFundDTO)
@@ -46,5 +54,26 @@ test('it propagates repository exception when updating fund', function () {
     } catch (RuntimeException $exception) {
         expect($exception)->toBe($previousException)
             ->and($exception->getMessage())->toBe('database is unavailable');
+    }
+});
+
+test('it throws not found when fund does not exist before updating', function () {
+    $saveFundDTO = new SaveFundDTO('Updated Fund', 2024, 20, 1);
+
+    $repository = \Mockery::mock(FundRepository::class);
+    $repository->shouldReceive('exists')
+        ->once()
+        ->with(1)
+        ->andReturn(false);
+    $repository->shouldNotReceive('update');
+
+    $useCase = new UpdateFundUseCase($repository);
+
+    try {
+        $useCase->execute($saveFundDTO);
+        $this->fail('Expected RuntimeException was not thrown.');
+    } catch (RuntimeException $exception) {
+        expect($exception->getMessage())->toBe('Fund not found.')
+            ->and($exception->getCode())->toBe(404);
     }
 });

@@ -14,6 +14,10 @@ class UpdateCompanyUseCase
 
     public function execute(SaveCompanyDTO $saveCompanyDTO): CompanyEntity
     {
+        if ($saveCompanyDTO->id !== null && !$this->companyRepository->exists($saveCompanyDTO->id)) {
+            throw new \RuntimeException('Company not found.', 404);
+        }
+
         return $this->companyRepository->update($saveCompanyDTO);
     }
 }

@@ -14,6 +14,10 @@ class UpdateFundManagerUseCase
 
     public function execute(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity
     {
+        if ($saveFundManagerDTO->id !== null && !$this->fundManagerRepository->exists($saveFundManagerDTO->id)) {
+            throw new \RuntimeException('Fund manager not found.', 404);
+        }
+
         return $this->fundManagerRepository->update($saveFundManagerDTO);
     }
 }

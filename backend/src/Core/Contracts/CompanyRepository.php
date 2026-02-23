@@ -16,6 +16,8 @@ interface CompanyRepository
 
     public function update(SaveCompanyDTO $saveCompanyDTO): CompanyEntity;
 
+    public function exists(int $id): bool;
+
     /**
      * @param int[] $companyIds
      */

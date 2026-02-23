@@ -26,5 +26,7 @@ interface FundRepository extends RepositoryTransactionInterface
 
     public function update(SaveFundDTO $saveFundDTO): FundEntity;
 
+    public function exists(int $id): bool;
+
     public function delete(int $id): bool;
 }

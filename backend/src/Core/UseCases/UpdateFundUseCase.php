@@ -14,6 +14,10 @@ class UpdateFundUseCase
 
     public function execute(SaveFundDTO $saveFundDTO): FundEntity
     {
+        if ($saveFundDTO->id !== null && !$this->fundRepository->exists($saveFundDTO->id)) {
+            throw new \RuntimeException('Fund not found.', 404);
+        }
+
         return $this->fundRepository->update($saveFundDTO);
     }
 }
