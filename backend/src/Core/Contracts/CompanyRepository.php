@@ -16,5 +16,10 @@ interface CompanyRepository
 
     public function update(SaveCompanyDTO $saveCompanyDTO): CompanyEntity;
 
+    /**
+     * @param int[] $companyIds
+     */
+    public function syncFundCompanies(int $fundId, array $companyIds): void;
+
     public function delete(int $id): bool;
 }

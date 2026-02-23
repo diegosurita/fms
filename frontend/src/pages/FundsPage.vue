@@ -4,11 +4,12 @@ import PageHeader from '@/components/common/PageHeader.vue'
 import DuplicatedFundDrawer from '@/components/funds/DuplicatedFundDrawer.vue'
 import FundFormDrawer from '@/components/funds/FundFormDrawer.vue'
 import { fmsApi } from '@/services/fmsApi'
-import type { DuplicatedFund, DuplicatedFundRecord, Fund, FundManager, FundPayload } from '@/types/fms'
+import type { Company, DuplicatedFund, DuplicatedFundRecord, Fund, FundManager, FundPayload } from '@/types/fms'
 
 const funds = ref<Fund[]>([])
 const duplicatedFunds = ref<DuplicatedFund[]>([])
 const fundManagers = ref<FundManager[]>([])
+const companies = ref<Company[]>([])
 const loading = ref(false)
 const error = ref('')
 const success = ref('')
@@ -24,6 +25,7 @@ const formModel = ref<FundPayload>({
   start_year: new Date().getFullYear(),
   manager_id: 1,
   aliases: [],
+  companies: [],
 })
 
 const duplicatedPairByFundId = computed<Map<number, DuplicatedFund>>(() => {
@@ -88,15 +90,17 @@ async function loadFunds(): Promise<void> {
   error.value = ''
 
   try {
-    const [fundsResponse, duplicatedResponse, managersResponse] = await Promise.all([
+    const [fundsResponse, duplicatedResponse, managersResponse, companiesResponse] = await Promise.all([
       fmsApi.listFunds(),
       fmsApi.listDuplicatedFunds(),
       fmsApi.listFundManagers(),
+      fmsApi.listCompanies(),
     ])
 
     funds.value = fundsResponse
     duplicatedFunds.value = duplicatedResponse
     fundManagers.value = managersResponse
+    companies.value = companiesResponse
     managersById.value = managersResponse.reduce<Record<number, string>>((result, manager) => {
       result[Number(manager.id)] = String(manager.name)
       return result
@@ -115,6 +119,7 @@ function resetForm(): void {
     start_year: new Date().getFullYear(),
     manager_id: 1,
     aliases: [],
+    companies: [],
   }
 }
 
@@ -142,6 +147,9 @@ function editFund(item: Record<string, unknown>): void {
     manager_id: Number(item.manager_id ?? item.managerId ?? 1),
     aliases: Array.isArray(item.aliases)
       ? item.aliases.map((alias) => String(alias).trim()).filter((alias) => alias.length > 0)
+      : [],
+    companies: Array.isArray(item.companies)
+      ? item.companies.map((companyId) => Number(companyId)).filter((companyId) => Number.isFinite(companyId))
       : [],
   }
   isFormDrawerOpen.value = true
@@ -322,6 +330,7 @@ onMounted(loadFunds)
       :model-value="formModel"
       :editing="editingFundId !== null"
       :fund-managers="fundManagers"
+      :companies="companies"
       @submit="saveFund"
       @close="closeFormDrawer"
     />

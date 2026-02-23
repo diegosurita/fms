@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class LaravelFundRepository extends LaravelRepository implements FundRepository
 {
+    public function __construct(private readonly LaravelCompanyRepository $companyRepository)
+    {
+    }
+
     public function list(?string $filter = null): array
     {
         $query = DB::table('funds')
@@ -47,14 +51,18 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
             ->all();
 
         $aliasesByFundId = $this->loadAliasesByFundIds($fundIds);
+        $companiesByFundId = $this->loadCompaniesByFundIds($fundIds);
 
         return $rows
-            ->map(function (object $row) use ($aliasesByFundId): FundEntity {
+            ->map(function (object $row) use ($aliasesByFundId, $companiesByFundId): FundEntity {
                 $data = (array) $row;
                 $fundId = isset($data['id']) ? (int) $data['id'] : null;
 
                 $data['aliases'] = $fundId !== null
                     ? ($aliasesByFundId[$fundId] ?? [])
+                    : [];
+                $data['companies'] = $fundId !== null
+                    ? ($companiesByFundId[$fundId] ?? [])
                     : [];
 
                 return LaravelFundRepositoryAdapter::fromDB($data);
@@ -66,10 +74,11 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
     public function create(SaveFundDTO $saveFundDTO): FundEntity
     {
         $aliases = $this->normalizeAliases($saveFundDTO->aliases);
+        $companies = $this->normalizeCompanies($saveFundDTO->companies);
 
         $this->ensureAliasesDoNotExist($aliases);
 
-        $fundId = DB::transaction(function () use ($saveFundDTO, $aliases): int {
+        $fundId = DB::transaction(function () use ($saveFundDTO, $aliases, $companies): int {
             $fundId = $this->insertFund($saveFundDTO);
 
             if ($aliases !== []) {
@@ -83,6 +92,8 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
                     $aliases,
                 ));
             }
+
+            $this->companyRepository->syncFundCompanies($fundId, $companies);
 
             return $fundId;
         });
@@ -198,10 +209,11 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
         }
 
         $aliases = $this->normalizeAliases($saveFundDTO->aliases);
+        $companies = $this->normalizeCompanies($saveFundDTO->companies);
 
         $this->ensureAliasesDoNotExist($aliases, $saveFundDTO->id);
 
-        DB::transaction(function () use ($saveFundDTO, $aliases): void {
+        DB::transaction(function () use ($saveFundDTO, $aliases, $companies): void {
             DB::table('funds')
                 ->where('id', $saveFundDTO->id)
                 ->update([
@@ -226,6 +238,8 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
                     $aliases,
                 ));
             }
+
+            $this->companyRepository->syncFundCompanies((int) $saveFundDTO->id, $companies);
         });
 
         return $this->findFundOrFail($saveFundDTO->id);
@@ -263,6 +277,7 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
 
         $data = (array) $fund;
         $data['aliases'] = $this->loadAliasesByFundIds([$id])[$id] ?? [];
+        $data['companies'] = $this->loadCompaniesByFundIds([$id])[$id] ?? [];
 
         return LaravelFundRepositoryAdapter::fromDB($data);
     }
@@ -339,5 +354,51 @@ class LaravelFundRepository extends LaravelRepository implements FundRepository
         }
 
         return $aliasesByFund;
+    }
+
+    /**
+     * @param int[] $companies
+     *
+     * @return int[]
+     */
+    private function normalizeCompanies(array $companies): array
+    {
+        return array_values(array_unique(array_filter(array_map(
+            static fn (mixed $companyId): int => (int) $companyId,
+            $companies,
+        ), static fn (int $companyId): bool => $companyId > 0)));
+    }
+
+    /**
+     * @param int[] $fundIds
+     *
+     * @return array<int, int[]>
+     */
+    private function loadCompaniesByFundIds(array $fundIds): array
+    {
+        if ($fundIds === []) {
+            return [];
+        }
+
+        /** @var array<int, array<int, object{fund:int, company:int}>> $grouped */
+        $grouped = DB::table('companies_funds')
+            ->select(['fund', 'company'])
+            ->whereIn('fund', $fundIds)
+            ->get()
+            ->groupBy('fund')
+            ->all();
+
+        $companiesByFund = [];
+
+        foreach ($grouped as $fundId => $items) {
+            $companyItems = is_array($items) ? $items : $items->all();
+
+            $companiesByFund[(int) $fundId] = array_values(array_map(
+                static fn (object $item): int => (int) $item->company,
+                $companyItems,
+            ));
+        }
+
+        return $companiesByFund;
     }
 }

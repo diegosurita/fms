@@ -40,6 +40,8 @@ class FundController extends Controller
             'manager_id' => ['required', 'integer'],
             'aliases' => ['sometimes', 'array'],
             'aliases.*' => ['string'],
+            'companies' => ['sometimes', 'array'],
+            'companies.*' => ['integer'],
         ]);
 
         $aliases = array_values(array_map(
@@ -47,11 +49,17 @@ class FundController extends Controller
             (array) ($validated['aliases'] ?? []),
         ));
 
+        $companies = array_values(array_map(
+            static fn (mixed $companyId): int => (int) $companyId,
+            (array) ($validated['companies'] ?? []),
+        ));
+
         return new FundListResource($createFundUseCase->execute(new SaveFundDTO(
             (string) $validated['name'],
             (int) $validated['start_year'],
             (int) $validated['manager_id'],
             aliases: $aliases,
+            companies: $companies,
         )));
     }
 
@@ -63,11 +71,18 @@ class FundController extends Controller
             'manager_id' => ['required', 'integer'],
             'aliases' => ['sometimes', 'array'],
             'aliases.*' => ['string'],
+            'companies' => ['sometimes', 'array'],
+            'companies.*' => ['integer'],
         ]);
 
         $aliases = array_values(array_map(
             static fn (mixed $alias): string => (string) $alias,
             (array) ($validated['aliases'] ?? []),
+        ));
+
+        $companies = array_values(array_map(
+            static fn (mixed $companyId): int => (int) $companyId,
+            (array) ($validated['companies'] ?? []),
         ));
 
         return new FundListResource($updateFundUseCase->execute(new SaveFundDTO(
@@ -76,6 +91,7 @@ class FundController extends Controller
             (int) $validated['manager_id'],
             id: $id,
             aliases: $aliases,
+            companies: $companies,
         )));
     }
 

@@ -17,6 +17,10 @@ class LaravelFundRepositoryAdapter
             static fn (mixed $alias): string => (string) $alias,
             (array) ($data['aliases'] ?? []),
         )));
+        $entity->setCompanies(array_values(array_map(
+            static fn (mixed $companyId): int => (int) $companyId,
+            (array) ($data['companies'] ?? []),
+        )));
         $entity->setCreatedAt(isset($data['created_at']) ? new \DateTimeImmutable((string) $data['created_at']) : null);
         $entity->setUpdatedAt(isset($data['updated_at']) ? new \DateTimeImmutable((string) $data['updated_at']) : null);
 

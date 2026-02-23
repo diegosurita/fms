@@ -10,6 +10,7 @@ class SaveFundDTO
         public readonly int $managerId,
         public readonly ?int $id = null,
         public readonly array $aliases = [],
+        public readonly array $companies = [],
     ) {
     }
 }

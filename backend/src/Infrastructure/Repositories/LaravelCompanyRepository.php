@@ -84,6 +84,44 @@ class LaravelCompanyRepository extends LaravelRepository implements CompanyRepos
         return LaravelCompanyEntityAdapter::fromDB((array) $company);
     }
 
+    /**
+     * @param int[] $companyIds
+     */
+    public function syncFundCompanies(int $fundId, array $companyIds): void
+    {
+        $normalizedCompanyIds = array_values(array_unique(array_filter(array_map(
+            static fn (mixed $companyId): int => (int) $companyId,
+            $companyIds,
+        ), static fn (int $companyId): bool => $companyId > 0)));
+
+        DB::table('companies_funds')
+            ->where('fund', $fundId)
+            ->delete();
+
+        if ($normalizedCompanyIds === []) {
+            return;
+        }
+
+        $existingCompanyIds = DB::table('companies')
+            ->whereIn('id', $normalizedCompanyIds)
+            ->whereNull('deleted_at')
+            ->pluck('id')
+            ->map(static fn (mixed $companyId): int => (int) $companyId)
+            ->all();
+
+        if ($existingCompanyIds === []) {
+            return;
+        }
+
+        DB::table('companies_funds')->insert(array_map(
+            static fn (int $companyId): array => [
+                'company' => $companyId,
+                'fund' => $fundId,
+            ],
+            $existingCompanyIds,
+        ));
+    }
+
     public function delete(int $id): bool
     {
         return DB::table('companies')

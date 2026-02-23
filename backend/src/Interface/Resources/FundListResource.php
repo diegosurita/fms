@@ -24,6 +24,7 @@ class FundListResource extends JsonResource
             'start_year' => $fund->getStartYear(),
             'manager_id' => $fund->getManagerId(),
             'aliases' => $fund->getAliases(),
+            'companies' => $fund->getCompanies(),
             'created_at' => $fund->getCreatedAt()?->format(DATE_ATOM),
             'updated_at' => $fund->getUpdatedAt()?->format(DATE_ATOM),
         ];

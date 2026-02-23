@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import type { FundManager, FundPayload } from '@/types/fms'
+import type { Company, FundManager, FundPayload } from '@/types/fms'
+import FundCompaniesSelect from '@/components/funds/FundCompaniesSelect.vue'
 
 const props = defineProps<{
   modelValue: FundPayload
   editing: boolean
   fundManagers: FundManager[]
+  companies: Company[]
 }>()
 
 const emit = defineEmits<{
@@ -18,6 +20,7 @@ const form = reactive<FundPayload>({
   start_year: new Date().getFullYear(),
   manager_id: 1,
   aliases: [],
+  companies: [],
 })
 
 const aliasesInput = ref('')
@@ -36,6 +39,7 @@ watch(
     form.start_year = value.start_year
     form.manager_id = value.manager_id
     form.aliases = value.aliases
+    form.companies = value.companies ?? []
     aliasesInput.value = value.aliases.join('; ')
   },
   { immediate: true, deep: true },
@@ -47,6 +51,9 @@ function onSubmit(): void {
     start_year: Number(form.start_year),
     manager_id: Number(form.manager_id),
     aliases: parsedAliases.value,
+    companies: form.companies
+      .map((companyId) => Number(companyId))
+      .filter((companyId) => Number.isFinite(companyId) && companyId > 0),
   })
 }
 </script>
@@ -111,6 +118,8 @@ function onSubmit(): void {
           class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-slate-300 focus:ring"
         />
       </div>
+
+      <FundCompaniesSelect v-model="form.companies" :companies="props.companies" />
 
       <div class="flex gap-2 pt-2">
         <button

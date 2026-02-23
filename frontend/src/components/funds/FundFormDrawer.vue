@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import SideDrawer from '@/components/common/SideDrawer.vue'
 import FundForm from '@/components/funds/FundForm.vue'
-import type { FundManager, FundPayload } from '@/types/fms'
+import type { Company, FundManager, FundPayload } from '@/types/fms'
 
 const props = defineProps<{
   open: boolean
   modelValue: FundPayload
   editing: boolean
   fundManagers: FundManager[]
+  companies: Company[]
 }>()
 
 const emit = defineEmits<{
@@ -22,6 +23,7 @@ const emit = defineEmits<{
       :model-value="props.modelValue"
       :editing="props.editing"
       :fund-managers="props.fundManagers"
+      :companies="props.companies"
       @submit="emit('submit', $event)"
       @cancel="emit('close')"
     />
