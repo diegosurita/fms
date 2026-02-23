@@ -1,47 +1,38 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { computed, ref } from 'vue'
+import TopMenu from '@/components/layout/TopMenu.vue'
+import CompaniesPage from '@/pages/CompaniesPage.vue'
+import DuplicatedFundsPage from '@/pages/DuplicatedFundsPage.vue'
+import FundManagersPage from '@/pages/FundManagersPage.vue'
+import FundsPage from '@/pages/FundsPage.vue'
+
+type MenuPage = '/funds' | '/funds/duplicated' | '/companies' | '/fund-managers'
+
+const currentPage = ref<MenuPage>('/funds')
+
+const currentView = computed(() => {
+  if (currentPage.value === '/companies') {
+    return CompaniesPage
+  }
+
+  if (currentPage.value === '/fund-managers') {
+    return FundManagersPage
+  }
+
+  if (currentPage.value === '/funds/duplicated') {
+    return DuplicatedFundsPage
+  }
+
+  return FundsPage
+})
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div class="min-h-screen bg-slate-50 text-slate-900">
+    <TopMenu :selected="currentPage" @select="currentPage = $event" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <component :is="currentView" />
+    </main>
+  </div>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
