@@ -5,10 +5,13 @@ namespace FMS\Interface\Controllers;
 use App\Http\Controllers\Controller;
 use FMS\Core\DataTransferObjects\SaveFundManagerDTO;
 use FMS\Core\UseCases\CreateFundManagerUseCase;
+use FMS\Core\UseCases\DeleteFundManagerUseCase;
 use FMS\Core\UseCases\ListFundManagersUseCase;
 use FMS\Core\UseCases\UpdateFundManagerUseCase;
 use FMS\Interface\Resources\FundManagerListResource;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -40,5 +43,22 @@ class FundManagerController extends Controller
             (string) $validated['name'],
             $id,
         )));
+    }
+
+    public function delete(int $id, DeleteFundManagerUseCase $deleteFundManagerUseCase): Response|JsonResponse
+    {
+        try {
+            $deleteFundManagerUseCase->execute($id);
+        } catch (\RuntimeException $exception) {
+            if ($exception->getCode() === 409) {
+                return response()->json([
+                    'message' => $exception->getMessage(),
+                ], 409);
+            }
+
+            throw $exception;
+        }
+
+        return response()->noContent();
     }
 }

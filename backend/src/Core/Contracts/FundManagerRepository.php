@@ -15,4 +15,6 @@ interface FundManagerRepository
     public function create(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity;
 
     public function update(SaveFundManagerDTO $saveFundManagerDTO): FundManagerEntity;
+
+    public function delete(int $id): bool;
 }
